@@ -1,25 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mesh.plugin.fssp;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 import json.json;
+import mesh.plugin.proxy.ProxyList;
 
 /**
  *
@@ -28,6 +22,21 @@ import json.json;
 public class fssp {
   private static final String udid = "582ada580ac286df";
   private static final Integer version = 41;
+  private static final Pattern rDuty = Pattern.compile("(([0-9]{1,},[0-9]{1,2})|([0-9]{1,})) (руб|\\\\u0440\\\\u0443\\\\u0431)\\.");
+  private static Integer queryCount = 0;
+  private static Proxy proxy;
+  
+   /***
+   * 
+   * @param first_name
+   * @param last_name
+   * @param patronymic
+   * @param birth
+   * @return fullDuty
+   */
+  public static Double get(String first_name, String last_name, String patronymic, String birth) {
+    return get(first_name, last_name, patronymic, birth, Region.ALL);
+  }
   
   /***
    * 
@@ -36,14 +45,20 @@ public class fssp {
    * @param patronymic
    * @param birth
    * @param region
-   * @return Solvency
+   * @return fullDuty
    */
   public static Double get(String first_name, String last_name, String patronymic, String birth, Region region) {
+    if(queryCount == 0) {
+      Pair<String, Integer> newProxy = ProxyList.next();
+      proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(newProxy.getKey(), newProxy.getValue()));
+    } else if(queryCount == 9) {
+      queryCount = 0;
+    }
     try {
       HttpURLConnection connection = (HttpURLConnection)(new URL("https://api.fssprus.ru/api/v2/search?type=form&first_name="
               + URLEncoder.encode(first_name, "UTF-8") + "&last_name=" + URLEncoder.encode(last_name, "UTF-8") + "&patronymic=" + URLEncoder.encode(patronymic, "UTF-8")
               + "&date=" + birth + "&region_id=" + region.getId() + "&udid="
-              + udid + "&ver=" + version.toString()).openConnection());
+              + udid + "&ver=" + version.toString()).openConnection(proxy));
       connection.setRequestMethod("GET");
       connection.setRequestProperty("User-Agent", "android");
       //connection.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
@@ -53,37 +68,37 @@ public class fssp {
       connection.setDoOutput(true);
       BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       String data = br.lines().collect(Collectors.joining("\n"));
-System.err.println(data);
       json J = new json(data);
       ErrorCode error_code = ErrorCode.values()[J.<Integer>get("error_code")];
-System.err.println("\n\ncode=" + error_code + "\n\n");
+System.err.println("[FSSP]: error_code=" + J.<Integer>get("error_code"));//DEBUG
       switch(error_code) {
         case OK:
-          json[] jx = J.<json>get("data").<json[]>get("list");;
-                //[0].<String>get("subject");
-          Double fullDuty = 0.0;
-          Pattern rDuty = Pattern.compile("(([0-9]{1,},[0-9]{1,2})|([0-9]{1,})) (руб|\\u0440\\u0443\\u0431).");
-  System.out.println("\n\n");
-          Arrays.stream(jx).map(it -> it.<String>get("subject")).forEach(it -> {
-            Matcher m = rDuty.matcher(it);
-            Integer groups = m.groupCount();
-  System.err.println("groups=" + groups);
-            //for(int i = 0; i < groups; ++i) {
-              //String x = m.group(i).replaceAll(" руб.", "").replaceAll(" \\u0440\\u0443\\u0431.", "");
-//System.out.println("x=" + x);
-            //}
-          });
-          return fullDuty;
+          ++queryCount;
+          json[] jx = J.<json>get("data").<json[]>get("list");
+          return Arrays.stream(jx)
+                  .map(it -> it.<String>get("subject"))
+                  .mapToDouble(it -> {
+                    Matcher m = rDuty.matcher(it);
+                    Integer groups = m.groupCount();
+                    Double partDuty = 0.0;
+                    while(m.find()) {
+                      String x = m.group()
+                        .replaceAll(" руб.", "")
+                        .replaceAll(" \\\\u0440\\\\u0443\\\\u0431.", "")
+                        .replace(",", ".");
+                      partDuty += Double.parseDouble(x);
+                    }
+                    return partDuty;
+                  })
+                  .sum();
         case CAPTCHA:
-          //TODO: change proxy
-          //Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("10.0.0.1", 8080));
-          //conn = new URL(urlString).openConnection(proxy);
-          return -0.0;
+          throw new Exception("[FSSP]: need captcha at query #" + queryCount);
         default:
           return -0.0;
       }
     } catch (Exception ex) {
-      ex.printStackTrace();
+      ex.printStackTrace();//DEBUG
+      queryCount = 0;
       return -0.0;
     }
   }

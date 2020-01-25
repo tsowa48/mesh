@@ -1,5 +1,6 @@
 package mesh.db;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 
@@ -11,6 +12,8 @@ import javax.persistence.*;
 @Table(name = "client")
 public class Client {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(unique=true, nullable=false)
   public Integer id;
   @Column(name = "firstname")
   public String firstName;
@@ -19,7 +22,7 @@ public class Client {
   @Column
   private String patronymic;
   @Column
-  private Integer birth;//Date
+  private String birth;//Date
   @Column(name = "ismale")
   private Boolean isMale;
   @Column
@@ -34,7 +37,8 @@ public class Client {
   private Set<Order> orders;
     
   public Client() {
-    //documents = new ArrayList<>();
+    documents = new HashSet<>();
+    orders = new HashSet<>();
   }
 
 }

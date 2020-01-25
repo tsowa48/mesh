@@ -42,8 +42,8 @@ public class Search extends HttpServlet {
         }
         crt.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         List<Client> clients = crt.list();
-        //TODO: recount every client coefficient
-        clients.forEach(it -> it.solvency = util.recountSolvency(it));
+        //TODO: recount client solvency on create new order
+        //clients.forEach(it -> it.solvency = util.recountSolvency(it));
         meshResponse.setData(clients.toArray());
         out.write(new json(meshResponse).toString());
       } else {

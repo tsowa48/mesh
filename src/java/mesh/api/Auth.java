@@ -28,7 +28,7 @@ public class Auth extends HttpServlet {
       out.write(new json(new MeshResponse(401)).toString());
       response.setStatus(401);
     } else {
-      user.password = null;
+      //user.password = null;
       user.orders = null;
       request.getSession(true).setAttribute("user", user);
       out.write(new json(new MeshResponse(200, user)).toString());
