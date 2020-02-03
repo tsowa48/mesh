@@ -30,10 +30,10 @@ public class Client {
   @Column(name = "solvency")
   public Double solvency;
   
-  @OneToMany(mappedBy = "cid", fetch=FetchType.LAZY)
+  @OneToMany(mappedBy = "cid", fetch = FetchType.LAZY)
   private Set<Document> documents;
   
-  @OneToMany(mappedBy = "cid", fetch=FetchType.LAZY)
+  @OneToMany(mappedBy = "cid", fetch = FetchType.LAZY)
   private Set<Order> orders;
     
   public Client() {

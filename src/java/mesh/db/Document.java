@@ -19,7 +19,7 @@ public class Document {
   @Column
   private String number;
   @Column
-  private Integer issued;//Date
+  private String issued;//Date
   @Column
   private String issuedBy;
   @Column

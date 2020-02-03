@@ -53,41 +53,42 @@ public class util {
   
   public static Criteria detectField(Criteria in, String query) {
     Criterion crt = Restrictions.or(
-            Restrictions.like("address", "%" + query + "%"),
-            Restrictions.like("firstName", "%" + query + "%"),
-            Restrictions.like("lastName", "%" + query + "%"),
-            Restrictions.like("patronymic", "%" + query + "%"));
+            Restrictions.ilike("address", "%" + query + "%"),
+            Restrictions.ilike("firstName", "%" + query + "%"),
+            Restrictions.ilike("lastName", "%" + query + "%"),
+            Restrictions.ilike("patronymic", "%" + query + "%")
+    );
     if(containsInt(query))
       crt = Restrictions.or(
-              Restrictions.eq("birth", Integer.parseInt(query)),
-              Restrictions.like("doc.serial", "%" + query + "%"),
-              Restrictions.like("doc.number", "%" + query + "%"),
-              Restrictions.eq("doc.issued", Integer.parseInt(query))
+              Restrictions.ilike("birth", "%" + query + "%"),
+              Restrictions.ilike("doc.serial", "%" + query + "%"),
+              Restrictions.ilike("doc.number", "%" + query + "%"),
+              Restrictions.ilike("doc.issued", "%" + query + "%")
       );
     if(query.contains(" ")) {
       String[] subQuery = query.split(" ");
       if(containsInt(query)) {
         crt = Restrictions.and(
-                Restrictions.like("doc.serial", "%" + subQuery[0] + "%"),
-                Restrictions.like("doc.number", "%" + subQuery[1] + "%")
+                Restrictions.ilike("doc.serial", "%" + subQuery[0] + "%"),
+                Restrictions.ilike("doc.number", "%" + subQuery[1] + "%")
         );
       } else {
         Criterion subCrt;
         if(subQuery.length > 2)
           subCrt = Restrictions.and(
-                  Restrictions.like("firstName", "%" + subQuery[0] + "%"),
-                  Restrictions.like("lastName", "%" + subQuery[1] + "%"),
-                  Restrictions.like("patronymic", "%" + subQuery[2] + "%")
+                  Restrictions.ilike("firstName", "%" + subQuery[0] + "%"),
+                  Restrictions.ilike("lastName", "%" + subQuery[1] + "%"),
+                  Restrictions.ilike("patronymic", "%" + subQuery[2] + "%")
           );
-        else if(subQuery.length > 1 && subQuery.length < 2)
+        else if(subQuery.length == 2)
           subCrt = Restrictions.and(
-                  Restrictions.like("firstName", "%" + subQuery[0] + "%"),
-                  Restrictions.like("lastName", "%" + subQuery[1] + "%")
+                  Restrictions.ilike("firstName", "%" + subQuery[0] + "%"),
+                  Restrictions.ilike("lastName", "%" + subQuery[1] + "%")
           );
         else
-          subCrt = Restrictions.like("firstName", "%" + subQuery[0] + "%");
+          subCrt = Restrictions.ilike("firstName", "%" + subQuery[0] + "%");
         crt = Restrictions.or(
-              Restrictions.like("address", "%" + query + "%"),
+              Restrictions.ilike("address", "%" + query + "%"),
               subCrt
           );
       }

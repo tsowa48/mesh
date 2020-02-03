@@ -32,13 +32,13 @@ public class Search extends HttpServlet {
         meshResponse = new MeshResponse(200);
         Session session = HibernateUtil.getSession();
         Criteria crt = session.createCriteria(Client.class, "client")
-                .createAlias("client.documents", "doc")
-                .createAlias("client.orders", "order");
-        if(query == null) {
+                .createAlias("client.documents", "doc");
+        if(query == null || query.isEmpty()) {
+          crt = crt.createAlias("client.orders", "order");
           User user = (User)request.getSession().getAttribute("user");
           crt.add(Restrictions.eq("order.uid", user.id));
         } else {
-          crt = util.detectField(crt, query);
+          crt = util.detectField(crt, query.replaceAll("%20", " ").toLowerCase());
         }
         crt.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         List<Client> clients = crt.list();
