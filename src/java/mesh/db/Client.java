@@ -13,21 +13,21 @@ import javax.persistence.*;
 public class Client {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(unique=true, nullable=false)
+  @Column(unique = true, nullable = false)
   public Integer id;
-  @Column(name = "firstname")
+  @Column(name = "firstname", nullable = false)
   public String firstName;
-  @Column(name = "lastname")
+  @Column(name = "lastname", nullable = false)
   private String lastName;
-  @Column
+  @Column(nullable = true)
   private String patronymic;
-  @Column
+  @Column(nullable = false)
   private String birth;//Date
-  @Column(name = "ismale")
+  @Column(name = "ismale", nullable = false)
   private Boolean isMale;
-  @Column
+  @Column(nullable = false)
   private String address;
-  @Column(name = "solvency")
+  @Column(name = "solvency", nullable = false)
   public Double solvency;
   
   @OneToMany(mappedBy = "cid", fetch = FetchType.LAZY)

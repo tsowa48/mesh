@@ -49,6 +49,7 @@ Contributor(s):
     
     <mapping class="mesh.db.User" />
     <mapping class="mesh.db.Document" />
+    <mapping class="mesh.db.Loan" />
     <mapping class="mesh.db.Order" />
     <mapping class="mesh.db.Client" />
   </session-factory>

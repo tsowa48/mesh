@@ -13,9 +13,11 @@ import mesh.HibernateUtil;
 import mesh.MeshResponse;
 import mesh.db.Client;
 import mesh.db.User;
+import mesh.db.Order;
 import mesh.util;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
@@ -41,6 +43,16 @@ System.out.println("jData='" + jData.toString() + "'\n\n");//DEBUG
           User user = jData.toClass(User.class);
           session.save(user);
           meshResponse.setData(user);
+        } else if(data.contains("desired_amount")) {
+          Order order = jData.toClass(Order.class);
+          if(order.lid == null) {
+            Client client = (Client)session.createCriteria(Client.class).add(Restrictions.eq("id", order.cid)).uniqueResult();
+            client.solvency = util.recountSolvency(client);
+            session.save(client);
+            order.approved = util.approveLoans(session, order);
+          }
+          session.save(order);
+          meshResponse.setData(order);
         } else {
           Client client = jData.toClass(Client.class);
           session.save(client);

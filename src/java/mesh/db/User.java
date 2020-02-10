@@ -11,6 +11,8 @@ import javax.persistence.*;
 @Table(name = "users")
 public class User {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(unique = true, nullable = false)
   public Integer id;
   @Column
   private String login;
@@ -26,6 +28,6 @@ public class User {
   //@Column
   //public Integer rid;//Role id
   
-  @OneToMany(mappedBy = "uid", fetch=FetchType.LAZY)
+  @OneToMany(mappedBy = "uid", fetch = FetchType.LAZY)
   public Set<Order> orders;
 }

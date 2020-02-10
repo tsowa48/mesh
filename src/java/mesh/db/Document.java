@@ -11,19 +11,21 @@ import javax.persistence.*;
 @Table
 public class Document {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(unique = true, nullable = false)
   private Integer id;
-  @Column
+  @Column(nullable = false)
   private Integer type;
-  @Column
+  @Column(nullable = false)
   private String serial;
-  @Column
+  @Column(nullable = false)
   private String number;
-  @Column
+  @Column(nullable = false)
   private String issued;//Date
-  @Column
+  @Column(nullable = true)
   private String issuedBy;
-  @Column
+  @Column(nullable = true)
   private Integer departmentCode;
-  @Column
+  @Column(nullable = false)
   private Integer cid;
 }

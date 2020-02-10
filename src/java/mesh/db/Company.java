@@ -10,6 +10,8 @@ import javax.persistence.*;
 @Table(name = "company")
 public class Company {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(unique = true, nullable = false)
   private Integer id;
   @Column
   private String name;
