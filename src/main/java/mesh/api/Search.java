@@ -1,12 +1,5 @@
 package mesh.api;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import json.json;
 import mesh.*;
 import mesh.db.*;
@@ -14,10 +7,20 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 /**
  *
  * @author tsowa
  */
+@WebServlet("/search")
 public class Search extends HttpServlet {
 
   @Override

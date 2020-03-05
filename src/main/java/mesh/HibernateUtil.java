@@ -1,7 +1,7 @@
 package mesh;
 
 import org.hibernate.Session;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.SessionFactory;
 
 /**
@@ -15,7 +15,7 @@ public class HibernateUtil {
   
   static {
     try {
-      sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
+      sessionFactory = new Configuration().configure().buildSessionFactory();;
       if(session == null)
         session = sessionFactory.openSession();
     } catch (Throwable ex) {

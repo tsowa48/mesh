@@ -1,28 +1,30 @@
 package mesh.api;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.stream.Collectors;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import json.json;
 import mesh.HibernateUtil;
 import mesh.MeshResponse;
 import mesh.db.Client;
-import mesh.db.User;
 import mesh.db.Order;
+import mesh.db.User;
 import mesh.util;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author tsowa
  */
+@WebServlet("/add")
 public class Add extends HttpServlet {
 
   @Override
@@ -38,7 +40,7 @@ public class Add extends HttpServlet {
         Session session = HibernateUtil.getSession();
         MeshResponse meshResponse = new MeshResponse(200);
         session.getTransaction().begin();
-System.out.println("jData='" + jData.toString() + "'\n\n");//DEBUG
+System.out.println("------jData='" + jData.toString() + "'\n\n");//DEBUG
         if(data.contains("\"login\"") && data.contains("\"password\"")) {
           User user = jData.toClass(User.class);
           session.save(user);

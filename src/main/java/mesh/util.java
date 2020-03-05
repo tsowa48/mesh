@@ -1,19 +1,16 @@
 package mesh;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import mesh.db.ApprovedLoan;
-import mesh.db.Client;
-import mesh.db.Loan;
-import mesh.db.Order;
-import mesh.db.User;
+import mesh.db.*;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  *
@@ -24,6 +21,8 @@ public class util {
 
   public static User tryLogin(String authString) {
     try {
+      if(authString == null)
+        return null;
       String[] authData = authString.split(" ");
       String authType = authData[0];//default=Basic
       if(!"Basic".equals(authType))
