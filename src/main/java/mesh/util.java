@@ -1,6 +1,9 @@
 package mesh;
 
 import mesh.db.*;
+import mesh.plugin.fedsfm.fedsfm;
+import mesh.plugin.fms.fms;
+import mesh.plugin.fssp.fssp;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -9,7 +12,6 @@ import org.hibernate.criterion.Restrictions;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -109,22 +111,22 @@ public class util {
             || s.contains("9");
   }
   
-  public static Double recountSolvency(Client c) {
-    //TODO: recount coef by client info
-    return new Random().nextDouble();//DEBUG
+  public static Double recountSolvency(Client client) {
+    Double solvency = 1.0;
+    Double fsspDuty = fssp.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth());
+    Double fedsfmList = fedsfm.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth());
+    Document passport = client.getDocuments().stream().filter(doc -> doc.getType() == 0).findFirst().get();
+    Double fmsExpired = fms.expiredDocument(passport.getSerial(), passport.getNumber());
+    //solvency -= fsspDuty;//TODO: convert fsspDuty to [0.0; 1.0]
+    solvency *= fedsfmList;
+    solvency *= fmsExpired;
+    return solvency;
   }
   
-  public static Set<ApprovedLoan> approveLoans(Session session, Order order) {
-    Client client = (Client)session
-            .createCriteria(Client.class)
-            .add(Restrictions.eq("id", order.cid))
-            .uniqueResult();
-    final Double solvency = client.solvency;
+  public static Set<ApprovedLoan> approveLoans(Client client, List<Loan> loans) {
+    final Double solvency = client.getSolvency();
     final Set<ApprovedLoan> aloans = new HashSet<>();
     final Integer isWhiteListed = solvency == 0.0 ? 0 : 1;
-    List<Loan> loans = session
-            .createCriteria(Loan.class)
-            .list();
     loans.forEach(it -> {
       Double percentSolvency = solvency >= it.max_solvency ? 1.0 :
               (solvency < it.min_solvency ? 0.0 :

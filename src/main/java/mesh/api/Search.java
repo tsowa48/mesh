@@ -24,8 +24,7 @@ import java.util.List;
 public class Search extends HttpServlet {
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-          throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     response.setContentType("application/json;charset=utf-8");
     PrintWriter out = response.getWriter();
     try {
@@ -45,12 +44,10 @@ public class Search extends HttpServlet {
         }
         crt.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         List<Client> clients = crt.list();
-        //TODO: recount client solvency on create new order
-        //clients.forEach(it -> it.solvency = util.recountSolvency(it));
         meshResponse.setData(clients.toArray());
         out.write(new json(meshResponse).toString());
       } else {
-        response.setHeader("WWW-Authenticate", "Basic realm=\"api.mesh\"");
+        response.setHeader("WWW-Authenticate", "Basic");
         out.write(new json(new MeshResponse(401)).toString());
         response.setStatus(401);
       }

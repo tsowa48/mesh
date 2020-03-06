@@ -1,8 +1,8 @@
 package mesh.db;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
 
 /**
  *
@@ -16,7 +16,7 @@ public class Client {
   @Column(unique = true, nullable = false)
   public Integer id;
   @Column(name = "firstname", nullable = false)
-  public String firstName;
+  private String firstName;
   @Column(name = "lastname", nullable = false)
   private String lastName;
   @Column(nullable = true)
@@ -28,7 +28,7 @@ public class Client {
   @Column(nullable = false)
   private String address;
   @Column(name = "solvency", nullable = false)
-  public Double solvency;
+  private Double solvency;
   
   @OneToMany(mappedBy = "cid", fetch = FetchType.LAZY)
   private Set<Document> documents;
@@ -41,4 +41,12 @@ public class Client {
     orders = new HashSet<>();
   }
 
+  public String getFirstName() { return this.firstName; }
+  public String getLastName() { return this.lastName; }
+  public String getPatronymic() { return this.patronymic; }
+  public String getBirth() { return this.birth; }
+  public Double getSolvency() { return this.solvency; }
+  public Set<Document> getDocuments() { return this.documents; }
+
+  public void setSolvency(Double solvency) { this.solvency = solvency; }
 }

@@ -21,8 +21,7 @@ import java.io.PrintWriter;
 public class Auth extends HttpServlet {
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-          throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     response.setContentType("application/json;charset=UTF-8");
     String authString = request.getHeader("Authorization");
     PrintWriter out = response.getWriter();

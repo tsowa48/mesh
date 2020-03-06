@@ -1,6 +1,5 @@
 package mesh.db;
 
-import java.util.Date;
 import javax.persistence.*;
 
 /**
@@ -8,7 +7,7 @@ import javax.persistence.*;
  * @author tsowa
  */
 @Entity
-@Table
+@Table(name = "document")
 public class Document {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,4 +27,8 @@ public class Document {
   private Integer departmentCode;
   @Column(nullable = false)
   private Integer cid;
+
+  public Integer getType() { return this.type; }
+  public String getSerial() { return this.serial; }
+  public String getNumber() { return this.number; }
 }

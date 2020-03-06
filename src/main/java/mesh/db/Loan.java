@@ -16,7 +16,7 @@ public class Loan {
   //@Column(nullable = false)
   //private Integer cid;//Company id
   @Column(nullable = false)
-  private String name;
+  public String name;
   @Column(nullable = false)
   public Double min_amount;
   @Column(nullable = false)

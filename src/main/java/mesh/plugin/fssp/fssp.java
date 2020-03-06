@@ -1,25 +1,22 @@
 package mesh.plugin.fssp;
 
+import javafx.util.Pair;
+import json.json;
+import mesh.plugin.proxy.ProxyList;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
-import json.json;
-import mesh.plugin.proxy.ProxyList;
 
 /**
  *
  * @author tsowa
  */
-public class fssp {
+public final class fssp {
   private static final String udid = "582ada580ac286df";
   private static final Integer version = 41;
   private static final Pattern rDuty = Pattern.compile("(([0-9]{1,},[0-9]{1,2})|([0-9]{1,})) (руб|\\\\u0440\\\\u0443\\\\u0431)\\.");
