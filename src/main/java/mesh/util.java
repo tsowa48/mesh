@@ -5,13 +5,14 @@ import mesh.plugin.fedsfm.fedsfm;
 import mesh.plugin.fms.fms;
 import mesh.plugin.fssp.fssp;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 /**
@@ -20,6 +21,8 @@ import java.util.Set;
  */
 public class util {
   private static final sun.misc.BASE64Decoder b64Decoder = new sun.misc.BASE64Decoder();
+
+  public static ResourceBundle rb;
 
   public static User tryLogin(String authString) {
     try {
@@ -30,14 +33,13 @@ public class util {
       if(!"Basic".equals(authType))
         return null;
       String[] credentials = new String(b64Decoder.decodeBuffer(authData[1])).split(":");
-      Session session = HibernateUtil.getSession();
-      User user = (User)session
-              .createCriteria(User.class)
-              .add(Restrictions.eq("login", credentials[0]))
-              .add(Restrictions.eq("password", credentials[1]))
-              .uniqueResult();
+      EntityManager em = DBManager.getManager();
+      List<User> user = (List)em.createNativeQuery("select U.* from users U where U.login=:login and U.password=:password", User.class)
+              .setParameter("login", credentials[0])
+              .setParameter("password", credentials[1])
+              .getResultList();
       //TODO: generate token
-      return user;
+      return user.get(0);
     } catch(Exception ex) {
       ex.printStackTrace();//DEBUG
       return null;
@@ -58,50 +60,26 @@ public class util {
     return false;
   }
   
-  public static Criteria detectField(Criteria in, String query) {
-    Criterion crt = Restrictions.or(
-            Restrictions.ilike("address", "%" + query + "%"),
-            Restrictions.ilike("firstName", "%" + query + "%"),
-            Restrictions.ilike("lastName", "%" + query + "%"),
-            Restrictions.ilike("patronymic", "%" + query + "%")
-    );
+  public static String detectField(String query) {
+    String criterion = "LOWER(C.address) like '%" + query + "%' or LOWER(C.firstname) like '%" + query + "%' or LOWER(C.lastname) like '%" + query + "%' or LOWER(C.patronymic) like '%" + query + "%'";
     if(containsInt(query))
-      crt = Restrictions.or(
-              Restrictions.ilike("birth", "%" + query + "%"),
-              Restrictions.ilike("doc.serial", "%" + query + "%"),
-              Restrictions.ilike("doc.number", "%" + query + "%"),
-              Restrictions.ilike("doc.issued", "%" + query + "%")
-      );
+      criterion = "LOWER(C.birth) like '%" + query + "%' or LOWER(D.serial) like '%" + query + "%' or LOWER(D.number) like '%" + query + "%' or LOWER(D.issued) like '%" + query + "%'";
     if(query.contains(" ")) {
       String[] subQuery = query.split(" ");
       if(containsInt(query)) {
-        crt = Restrictions.and(
-                Restrictions.ilike("doc.serial", "%" + subQuery[0] + "%"),
-                Restrictions.ilike("doc.number", "%" + subQuery[1] + "%")
-        );
+        criterion = "LOWER(D.serial) like '%" + subQuery[0] + "%' and LOWER(D.number) like '%" + subQuery[1] + "%'";
       } else {
-        Criterion subCrt;
+        String subCrt;
         if(subQuery.length > 2)
-          subCrt = Restrictions.and(
-                  Restrictions.ilike("firstName", "%" + subQuery[0] + "%"),
-                  Restrictions.ilike("lastName", "%" + subQuery[1] + "%"),
-                  Restrictions.ilike("patronymic", "%" + subQuery[2] + "%")
-          );
+          subCrt = "LOWER(C.firstname) like '%" + subQuery[0] + "%' and LOWER(C.lastname) like '%" + subQuery[1] + "%' and LOWER(C.patronymic) like '%" + subQuery[2] + "%'";
         else if(subQuery.length == 2)
-          subCrt = Restrictions.and(
-                  Restrictions.ilike("firstName", "%" + subQuery[0] + "%"),
-                  Restrictions.ilike("lastName", "%" + subQuery[1] + "%")
-          );
+          subCrt = "LOWER(C.firstname) like '%" + subQuery[0] + "%' and LOWER(C.lastname) like '%" + subQuery[1] + "%'";
         else
-          subCrt = Restrictions.ilike("firstName", "%" + subQuery[0] + "%");
-        crt = Restrictions.or(
-              Restrictions.ilike("address", "%" + query + "%"),
-              subCrt
-          );
+          subCrt = "LOWER(C.firstname) like '%" + subQuery[0] + "%'";
+        criterion = "LOWER(C.address) like '%" + query + "%' or " + subCrt;
       }
     }
-    in.add(crt);
-    return in;
+    return criterion;
   }
   
   private static boolean containsInt(String s) {

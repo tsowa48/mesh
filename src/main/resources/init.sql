@@ -6,17 +6,20 @@ create database mesh;
 create user mesh with login password 'mesh';
 grant all on database mesh to mesh;
 grant all privileges on all tables in schema public to mesh;
-create table users(id serial not null primary key, login text not null, password text not null, fio text not null, token text);
+create table users(id serial not null primary key, login text not null, password text not null, fio text not null, rid int not null, token text);
 create table client(id serial not null primary key, firstName text not null, lastName text not null, patronymic text, birth text not null, isMale boolean not null, address text not null, solvency real);
 create table document(id serial not null primary key, type int not null, serial text not null, number text not null, issued text not null, issuedBy text, departmentCode int, cid int not null);
 create table orders(id serial not null primary key, uid int not null, cid int not null, lid int, desired_amount real not null, desired_term int not null, date int not null);
 create table loan(id serial not null primary key, name text not null, min_amount real not null, max_amount real not null, min_term int not null, max_term int not null, min_percent real not null, max_percent real not null, min_solvency real not null, max_solvency real not null);
+create table role(id serial not null primary key, name text not null, access text not null);
 
-insert into users(login, password, fio) values
-  ('admin', 'admin', 'Администратор'),
-  ('operator', 'operator', 'Оператор'),
-  ('collector', 'collector', 'Коллектор'),
-  ('accountant', 'accountant', 'Бухгалтер');
+insert into role(name,access) values ('admin', 'admin'), ('operator', 'operator');
+
+insert into users(login, password, fio, rid) values
+  ('admin', 'admin', 'Администратор', 1),
+  ('operator', 'operator', 'Оператор', 2),
+  ('collector', 'collector', 'Коллектор', 3),
+  ('accountant', 'accountant', 'Бухгалтер', 4);
 
 insert into client(firstName, lastName, patronymic, birth, isMale, address) values
   ('Иванов', 'Иван', 'Сергеевич', '4.12.1960', true, 'Russia'),

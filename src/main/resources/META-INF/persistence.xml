@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+<persistence-unit name="mesh">
+  <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+  <class>mesh.db.Client</class>
+  <class>mesh.db.Document</class>
+  <class>mesh.db.Loan</class>
+  <class>mesh.db.Order</class>
+  <class>mesh.db.User</class>
+  <class>mesh.db.Role</class>
+  <properties>
+    <property name="hibernate.connection.username" value="mesh" />
+    <property name="hibernate.connection.password" value="mesh" />
+    <property name="hibernate.connection.charSet" value="UTF-8" />
+    <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL9Dialect" />
+    <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/mesh" />
+    <property name="hibernate.connection.characterEncoding" value="utf8" />
+    <property name="hibernate.connection.useUnicode" value="true" />
+    <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+</properties>
+</persistence-unit>
+</persistence>

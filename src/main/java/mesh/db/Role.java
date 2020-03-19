@@ -1,6 +1,7 @@
 package mesh.db;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  *
@@ -12,12 +13,44 @@ public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(unique = true, nullable = false)
-  private Integer id;
+  protected Integer id;
   @Column
-  private String name;
+  protected String name;
   @Column
-  private Integer access;
-  
-  //@OneToMany(mappedBy = "rid", fetch=FetchType.LAZY)
-  //public Set<User> users;
+  protected String access;//Integer
+
+  @OneToMany(mappedBy = "id", fetch=FetchType.LAZY)
+  protected Set<User> users;
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getAccess() {
+    return access;
+  }
+
+  public void setAccess(String access) {
+    this.access = access;
+  }
+
+  public Set<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(Set<User> users) {
+    this.users = users;
+  }
 }
