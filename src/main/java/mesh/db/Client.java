@@ -27,7 +27,7 @@ public class Client {
   private Boolean isMale;
   @Column(nullable = false)
   private String address;
-  @Column(name = "solvency", nullable = false)
+  @Column(name = "solvency", nullable = true)
   private Double solvency;
   
   @OneToMany(mappedBy = "cid", fetch = FetchType.LAZY)
@@ -41,12 +41,24 @@ public class Client {
     orders = new HashSet<>();
   }
 
+  public Integer getId() { return this.id; }
   public String getFirstName() { return this.firstName; }
   public String getLastName() { return this.lastName; }
   public String getPatronymic() { return this.patronymic; }
   public String getBirth() { return this.birth; }
   public Double getSolvency() { return this.solvency; }
   public Set<Document> getDocuments() { return this.documents; }
+  public Boolean getSex() { return isMale; }
+  public String getAddress() { return address; }
+  public Set<Order> getOrders() { return orders; }
 
   public void setSolvency(Double solvency) { this.solvency = solvency; }
+  public void setFirstName(String firstName) { this.firstName = firstName; }
+  public void setLastName(String lastName) { this.lastName = lastName; }
+  public void setPatronymic(String patronymic) { this.patronymic = patronymic; }
+  public void setBirth(String birth) { this.birth = birth; }
+  public void setMale(Boolean male) { isMale = male; }
+  public void setAddress(String address) { this.address = address; }
+  public void setDocuments(Set<Document> documents) { this.documents = documents; }
+  public void addDocument(Document document) { this.documents.add(document); }
 }

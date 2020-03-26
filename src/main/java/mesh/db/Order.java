@@ -33,4 +33,17 @@ public class Order {
   public Order() {
     approved = new HashSet<>();
   }
+
+  public Integer getId() { return id; }
+  public void setId(Integer id) { this.id = id; }
+  public Integer getLid() { return lid; }
+  public void setLid(Integer lid) { this.lid = lid; }
+  public Double getDesired_amount() { return desired_amount; }
+  public void setDesired_amount(Double desired_amount) { this.desired_amount = desired_amount; }
+  public Integer getDesired_term() { return desired_term; }
+  public void setDesired_term(Integer desired_term) { this.desired_term = desired_term; }
+  public Integer getDate() { return date; }
+  public void setDate(Integer date) { this.date = date; }
+  public Set<ApprovedLoan> getApproved() { return approved; }
+  public void setApproved(Set<ApprovedLoan> approved) { this.approved = approved; }
 }

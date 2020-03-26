@@ -16,7 +16,6 @@
             </div>
             <div class='panel-footer' style="padding-top:5px">
                 <input type='submit' class='btn btn-success btn-block' value='<%=mesh.util.rb.getString("signin") %>'/>
-                <a href="/register" class='btn btn-default btn-block disabled'><%=mesh.util.rb.getString("register") %></a>
             </div>
         </form>
     </body>
