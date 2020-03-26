@@ -19,8 +19,8 @@ public class Role {
   @Column
   protected String access;//Integer
 
-  @OneToMany(mappedBy = "id", fetch=FetchType.LAZY)
-  protected Set<User> users;
+  //@OneToMany(mappedBy = "id", fetch=FetchType.LAZY)
+  //protected Set<User> users;
 
   public Integer getId() {
     return id;
@@ -46,11 +46,7 @@ public class Role {
     this.access = access;
   }
 
-  public Set<User> getUsers() {
-    return users;
-  }
+  //public Set<User> getUsers() { return users; }
 
-  public void setUsers(Set<User> users) {
-    this.users = users;
-  }
+  //public void setUsers(Set<User> users) { this.users = users; }
 }

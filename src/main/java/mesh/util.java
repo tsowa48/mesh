@@ -4,12 +4,6 @@ import mesh.db.*;
 import mesh.plugin.fedsfm.fedsfm;
 import mesh.plugin.fms.fms;
 import mesh.plugin.fssp.fssp;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
-
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -24,42 +18,6 @@ public class util {
 
   public static ResourceBundle rb;
 
-  public static User tryLogin(String authString) {
-    try {
-      if(authString == null)
-        return null;
-      String[] authData = authString.split(" ");
-      String authType = authData[0];//default=Basic
-      if(!"Basic".equals(authType))
-        return null;
-      String[] credentials = new String(b64Decoder.decodeBuffer(authData[1])).split(":");
-      EntityManager em = DBManager.getManager();
-      List<User> user = (List)em.createNativeQuery("select U.* from users U where U.login=:login and U.password=:password", User.class)
-              .setParameter("login", credentials[0])
-              .setParameter("password", credentials[1])
-              .getResultList();
-      //TODO: generate token
-      return user.get(0);
-    } catch(Exception ex) {
-      ex.printStackTrace();//DEBUG
-      return null;
-    }
-  }
-  
-  public static boolean isAuthorized(HttpServletRequest request) {
-    User user = (User)request.getSession().getAttribute("user");
-    if(user == null) {
-      String authString = request.getHeader("Authorization");
-      user = util.tryLogin(authString);
-      if(user != null) {
-        request.getSession().setAttribute("user", user);
-        return true;
-      }
-    } else
-      return true;
-    return false;
-  }
-  
   public static String detectField(String query) {
     String criterion = "LOWER(C.address) like '%" + query + "%' or LOWER(C.firstname) like '%" + query + "%' or LOWER(C.lastname) like '%" + query + "%' or LOWER(C.patronymic) like '%" + query + "%'";
     if(containsInt(query))

@@ -2,6 +2,8 @@
 <%@ page import="mesh.db.Document" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="mesh.db.Order" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/WEB-INF/page/_header.jsp"%>
 <body class="container">
@@ -67,28 +69,30 @@
             </div>
             <div id="orders" class="tab-pane fade">
                 <% Set<Order> orders = client.getOrders(); %>
-
+                <div class="panel-body">
                 <table id="tblOrders" class="table table-bordered table-condensed table-hover">
                     <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ")%></th><th><%=rb.getString("wish_date")%></th></tr></thead>
-                    <tbody><% if(orders.size() == 0) {
-                        out.write("<tr><td colspan=3 style='text-align:center'>" + rb.getString("empty_list") + "</td></tr>");
-                    } else {
-                        for(Order order : orders) {
-                            out.write("<tr oid='" + order.getId() + "'>");
-                            out.write("<td>" + order.getDate() + "</td>");
-                            out.write("<td>" + order.getDesired_amount() + "</td>");
-                            out.write("<td>" + order.getDesired_term() + "</td>");
-                            out.write("</tr>");
-                        }
+                    <tbody><% for(Order order : orders) {
+                        out.write("<tr style='cursor:pointer;' oid='" + order.getId() + "'>");
+                        out.write("<td>" + order.getDate() + "</td>");
+                        out.write("<td>" + order.getDesired_amount() + "</td>");
+                        out.write("<td>" + order.getDesired_term() + "</td>");
+                        out.write("</tr>");
                     }
-                    %></tbody>
+                    %>
+                    <tr oid='' id="newOrder">
+                        <td style='padding:0px'><input type="text" class="form-control input-sm" name="order_date" value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/></td>
+                        <td style='padding:0px'><input type="number" class="form-control input-sm" name="wish_summ" min="0.00" step="100.00" value="0.00"/></td>
+                        <td style='padding:0px'><input type="text" class="form-control input-sm" name="wish_date" value="" placeholder="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>"/></td>
+                    </tr>
+                    </tbody>
                 </table>
-
+                </div>
 
                 <script type="text/javascript">
-                    //$('#tblOrders tbody tr[oid!=""]').on('click', function(x) {
-                        //window.location.href = '/order?id='+$(this).attr('oid');
-                    //});
+                    $('#tblOrders tbody tr[oid!=""]').on('click', function(x) {
+                        window.location.href = '/order?id='+$(this).attr('oid');
+                    });
                 </script>
             </div>
         </div>
