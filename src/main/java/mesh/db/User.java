@@ -29,7 +29,7 @@ public class User {
   @JoinColumn(name = "rid", nullable = false)
   protected Role role;
   
-  @OneToMany(mappedBy = "uid", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "uid", fetch = FetchType.EAGER)
   protected Set<Order> orders;
 
   public Integer getId() {
