@@ -13,7 +13,7 @@ public class Logout extends HttpServlet {
 
     @GET
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getSession(true).setAttribute("user", null);
+        request.getSession(true).setAttribute("me", null);
         response.sendRedirect("/");
     }
 }

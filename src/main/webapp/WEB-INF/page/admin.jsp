@@ -22,7 +22,8 @@
                 $('#tblUsers tbody tr').remove();
                 $.ajax({
                     type: "GET",
-                    async: true,
+                    async: false,
+                    cache: false,
                     url: "/api/user",
                     data: null,
                     xhrFields: {withCredentials: true}
@@ -43,7 +44,8 @@
                 $('#tblLoans tbody tr').remove();
                 $.ajax({
                     type: "GET",
-                    async: true,
+                    async: false,
+                    cache: false,
                     url: "/api/loan",
                     data: null,
                     xhrFields: {withCredentials: true}

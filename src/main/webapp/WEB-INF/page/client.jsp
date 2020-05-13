@@ -18,7 +18,7 @@
         <div class="tab-content">
             <div id="info" class="tab-pane fade in active">
                 <% mesh.db.Client client = (mesh.db.Client)request.getAttribute("client"); %>
-                <div id='clientPrimaryInfo' class='list-group panel-body'>
+                <div id='clientPrimaryInfo' class='list-group panel-body' data-id="<%=client.getId()%>">
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("first_name") %></span>
                         <input type='text' name='firstName' class='form-control input-sm' required autofocus value="<%=client.getFirstName()%>"/>
@@ -41,7 +41,7 @@
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("sex")%></span>
-                        <select name='sex' class='form-control input-sm' required>
+                        <select name='ismale' class='form-control input-sm' required>
                             <option <%=client.getSex()?"selected":""%> value="1"><%=rb.getString("male")%></option>
                             <option <%=client.getSex()?"":"selected"%> value="0"><%=rb.getString("female")%></option>
                         </select>
@@ -57,14 +57,34 @@
                         <% Set<Document> docs = client.getDocuments();
                             for(Document doc : docs)
                             out.write("<tr><td>" + rb.getString("document_type_" + doc.getType()) + "</td>" +
-                                    "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_s_" + doc.getType() + "' value='" + doc.getSerial() + "'/></td>" +
-                                    "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_n_" + doc.getType() + "' value='" + doc.getNumber() + "'/></td>" +
-                                    "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_i_" + doc.getType() + "' value='" + doc.getIssued() + "'/></td></tr>");
+                                    "<td>" + doc.getSerial() + "</td>" +//"<td style='padding:0px'><input disabled class='form-control input-sm' type='text' name='doc_s_" + doc.getType() + "' value='" + doc.getSerial() + "'/></td>" +
+                                    "<td>" + doc.getNumber() + "</td>" +//"<td style='padding:0px'><input disabled class='form-control input-sm' type='text' name='doc_n_" + doc.getType() + "' value='" + doc.getNumber() + "'/></td>" +
+                                    "<td>" + doc.getIssued() + "</td></tr>");//"<td style='padding:0px'><input disabled class='form-control input-sm' type='text' name='doc_i_" + doc.getType() + "' value='" + doc.getIssued() + "'/></td></tr>");
                         %>
                     </table>
                 </div>
                 <script type="text/javascript">
-                    //TODO: onchange in id= #clientPrimaryInfo
+                    $('#clientPrimaryInfo .form-control').change(function() {
+                        var control = $(this);
+                        control.parent().removeClass('has-error');
+                        var id = $('#clientPrimaryInfo').data('id');
+                        var field = $(this).attr('name');
+                        var value = $(this).val();
+                        var newData = {"id": id, "field": field, "value": value};
+                        $.ajax({
+                            type: "PUT",
+                            async: true,
+                            url: "/api/client",
+                            data: JSON.stringify(newData),
+                            xhrFields: {withCredentials: true}
+                        }).error(function (msg) {
+                            console.log(msg);
+                            control.parent().addClass('has-error');
+                        }).success(function (data) {
+                            if(data.status !== 200)
+                                control.parent().addClass('has-error');
+                        });
+                    });
                 </script>
             </div>
             <div id="orders" class="tab-pane fade">
@@ -82,7 +102,7 @@
                     %>
                     <tr oid='' id="newOrder">
                         <td style='padding:0px'><input type="text" class="form-control input-sm" name="order_date" value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/></td>
-                        <td style='padding:0px'><input type="number" class="form-control input-sm" name="wish_summ" min="0.00" step="100.00" value="0.00"/></td>
+                        <td style='padding:0px'><input type="number" class="form-control input-sm" name="wish_summ" min="0.00" step="<%=rb.getString("max_amount_value")%>" value="0.00"/></td>
                         <td style='padding:0px'><input type="text" class="form-control input-sm" name="wish_date" value="" placeholder="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>"/></td>
                     </tr>
                     </tbody>
@@ -93,6 +113,7 @@
                     $('#tblOrders tbody tr[oid!=""]').on('click', function(x) {
                         window.location.href = '/order?id='+$(this).attr('oid');
                     });
+                    //TODO: create new order on fields changed
                 </script>
             </div>
         </div>

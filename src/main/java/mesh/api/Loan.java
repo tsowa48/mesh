@@ -26,9 +26,10 @@ public class Loan extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("user");
+        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
+        em.clear();
         String lid = request.getParameter("id");
         MeshResponse meshResponse = new MeshResponse(200);
         Query query;
@@ -49,7 +50,7 @@ public class Loan extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("user");
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
         json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));

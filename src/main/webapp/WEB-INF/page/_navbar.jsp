@@ -154,12 +154,12 @@
             </div>
         </div>
         <script type="text/javascript">
-            $('#newUser select[name="access"] option').remove();
-            $('#newUser').find('select[name="access"]').append('<option selected disabled></option>');
-            $('#newUser').on('click', function() {
+            $('#modalUser').on('click', function() {
+                $('#newUser select[name="access"] option').remove();
+                $('#newUser').find('select[name="access"]').append('<option selected disabled></option>');
                 $.ajax({
                     type: "GET",
-                    async: true,
+                    async: false,
                     url: "/api/role",
                     data: null,
                     xhrFields: { withCredentials: true }

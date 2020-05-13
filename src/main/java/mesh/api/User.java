@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -26,9 +28,10 @@ public class User extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("user");
+        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
+        em.clear();
         String uid = request.getParameter("id");
         MeshResponse meshResponse = new MeshResponse(200);
         Query query;
@@ -49,7 +52,7 @@ public class User extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("user");
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
         json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
@@ -67,5 +70,43 @@ public class User extends HttpServlet {
                 .getSingleResult();
         meshResponse.setData(user);
         out.write(new json(meshResponse).toString());
+    }
+
+    @PUT
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out = response.getWriter();
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
+        //TODO: check if user is null
+        EntityManager em = DBManager.getManager();
+        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+        MeshResponse meshResponse = new MeshResponse(200);
+        Integer id = jData.get("id");
+        String field = jData.get("field");
+        String value = jData.get("value");
+        em.getTransaction().begin();
+        em.createNativeQuery("update users set " + field.replace("\\", "\\\\").replace("'", "\'")
+                + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id", mesh.db.User.class)
+                .setParameter("id", id)
+                .executeUpdate();
+        em.getTransaction().commit();
+        out.write(new json(meshResponse).toString());
+    }
+
+    @DELETE
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out = response.getWriter();
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
+        //TODO: check if user is null
+        EntityManager em = DBManager.getManager();
+        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+        Integer id = jData.get("id");
+        em.getTransaction().begin();
+        em.createNativeQuery("delete from users where id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+        em.getTransaction().commit();
+        out.write(new json(new MeshResponse(200)).toString());
     }
 }

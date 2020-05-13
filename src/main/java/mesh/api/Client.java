@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
@@ -28,9 +29,10 @@ public class Client extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User user = (mesh.db.User)request.getSession().getAttribute("user");
+        mesh.db.User user = (mesh.db.User)request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
+        em.clear();
         String q = request.getParameter("q");
         MeshResponse meshResponse = new MeshResponse(200);
         Query query;
@@ -53,7 +55,7 @@ public class Client extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User user = (mesh.db.User) request.getSession().getAttribute("user");
+        mesh.db.User user = (mesh.db.User) request.getSession().getAttribute("me");
         //TODO: check if user is null
         EntityManager em = DBManager.getManager();
         json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
@@ -86,6 +88,28 @@ public class Client extends HttpServlet {
                 .setParameter("t", 0)
                 .getSingleResult();
         client.addDocument(pasport);
+        meshResponse.setData(client);
+        out.write(new json(meshResponse).toString());
+    }
+
+    @PUT
+    @Transactional
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out = response.getWriter();
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
+        //TODO: check if user is null
+        EntityManager em = DBManager.getManager();
+        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+        MeshResponse meshResponse = new MeshResponse(200);
+        Integer id = jData.get("id");
+        String field = jData.get("field");
+        String value = jData.get("value");
+        mesh.db.Client client = (mesh.db.Client)em
+                .createNativeQuery("update client set " + field.replace("\\", "\\\\").replace("'", "\'")
+                        + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id returning *", mesh.db.Client.class)
+                .setParameter("id", id)
+                .getSingleResult();
         meshResponse.setData(client);
         out.write(new json(meshResponse).toString());
     }

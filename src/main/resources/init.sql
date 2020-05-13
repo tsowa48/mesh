@@ -13,7 +13,7 @@ create table orders(id serial not null primary key, uid int not null, cid int no
 create table loan(id serial not null primary key, name text not null, min_amount real not null, max_amount real not null, min_term int not null, max_term int not null, min_percent real not null, max_percent real not null, min_solvency real not null, max_solvency real not null);
 create table role(id serial not null primary key, name text not null, access text not null);
 
-insert into role(name,access) values ('admin', 'admin'), ('operator', 'operator');
+insert into role(name, access) values ('Администратор', 'admin'), ('Оператор', 'operator');
 
 insert into users(login, password, fio, rid) values
   ('admin', 'admin', 'Администратор', 1),
