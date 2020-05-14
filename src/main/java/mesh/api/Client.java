@@ -29,24 +29,25 @@ public class Client extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User user = (mesh.db.User)request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        em.clear();
-        String q = request.getParameter("q");
+        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("me");
         MeshResponse meshResponse = new MeshResponse(200);
-        Query query;
-        if(q == null || q.isEmpty()) {
-             query = em
-                     .createNativeQuery("select C.* from client C, orders O, document D where D.cid=C.id and D.type=0 and C.id=O.cid and O.uid = :uid order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class)
-                     .setParameter("uid", user.getId());
-        } else {
-            String sql = "select C.* from client C, document D where D.cid=C.id and D.type=0 and ";
-            sql += "(" + mesh.util.detectField(URLDecoder.decode(q, "UTF-8").toLowerCase()) + ")";
-            query = em.createNativeQuery(sql + " order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class);
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            em.clear();
+            String q = request.getParameter("q");
+            Query query;
+            if (q == null || q.isEmpty()) {
+                query = em
+                        .createNativeQuery("select C.* from client C, orders O, document D where D.cid=C.id and D.type=0 and C.id=O.cid and O.uid = :uid order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class)
+                        .setParameter("uid", me.getId());
+            } else {
+                String sql = "select C.* from client C, document D where D.cid=C.id and D.type=0 and ";
+                sql += "(" + mesh.util.detectField(URLDecoder.decode(q, "UTF-8").toLowerCase()) + ")";
+                query = em.createNativeQuery(sql + " order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class);
+            }
+            List<mesh.db.Client> clients = query.getResultList();
+            meshResponse.setData(clients.toArray());
         }
-        List<mesh.db.Client> clients = query.getResultList();
-        meshResponse.setData(clients.toArray());
         out.write(new json(meshResponse).toString());
     }
 
@@ -55,40 +56,41 @@ public class Client extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User user = (mesh.db.User) request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+        mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
         MeshResponse meshResponse = new MeshResponse(200);
-        String firstName = jData.get("firstName");
-        String lastName = jData.get("lastName");
-        String patronymic = jData.get("patronymic");
-        String birth = jData.get("birth");
-        String sex = jData.get("sex");
-        String address = jData.get("address");
-        //TODO: fill documents
-        String doc0s = jData.get("doc_s_0");
-        String doc0n = jData.get("doc_n_0");
-        String doc0i = jData.get("doc_i_0");
-        mesh.db.Client client = (mesh.db.Client)em
-                .createNativeQuery("insert into client(firstname, lastname, patronymic, birth, ismale, address) values(:fn, :ln, :p, :b, :m, :a) returning *", mesh.db.Client.class)
-                .setParameter("fn", firstName)
-                .setParameter("ln", lastName)
-                .setParameter("p", patronymic)
-                .setParameter("b", birth)
-                .setParameter("m", sex.equals("1"))
-                .setParameter("a", address)
-                .getSingleResult();
-        mesh.db.Document pasport = (mesh.db.Document)em
-                .createNativeQuery("insert into document(serial, number, issued, cid, type) values(:s, :n, :i, :c, :t) returning *", mesh.db.Document.class)
-                .setParameter("s", doc0s)
-                .setParameter("n", doc0n)
-                .setParameter("i", doc0i)
-                .setParameter("c", client.getId())
-                .setParameter("t", 0)
-                .getSingleResult();
-        client.addDocument(pasport);
-        meshResponse.setData(client);
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+            String firstName = jData.get("firstName");
+            String lastName = jData.get("lastName");
+            String patronymic = jData.get("patronymic");
+            String birth = jData.get("birth");
+            String sex = jData.get("sex");
+            String address = jData.get("address");
+            //TODO: fill documents
+            String doc0s = jData.get("doc_s_0");
+            String doc0n = jData.get("doc_n_0");
+            String doc0i = jData.get("doc_i_0");
+            mesh.db.Client client = (mesh.db.Client) em
+                    .createNativeQuery("insert into client(firstname, lastname, patronymic, birth, ismale, address) values(:fn, :ln, :p, :b, :m, :a) returning *", mesh.db.Client.class)
+                    .setParameter("fn", firstName)
+                    .setParameter("ln", lastName)
+                    .setParameter("p", patronymic)
+                    .setParameter("b", birth)
+                    .setParameter("m", sex.equals("1"))
+                    .setParameter("a", address)
+                    .getSingleResult();
+            mesh.db.Document pasport = (mesh.db.Document) em
+                    .createNativeQuery("insert into document(serial, number, issued, cid, type) values(:s, :n, :i, :c, :t) returning *", mesh.db.Document.class)
+                    .setParameter("s", doc0s)
+                    .setParameter("n", doc0n)
+                    .setParameter("i", doc0i)
+                    .setParameter("c", client.getId())
+                    .setParameter("t", 0)
+                    .getSingleResult();
+            client.addDocument(pasport);
+            meshResponse.setData(client);
+        }
         out.write(new json(meshResponse).toString());
     }
 
@@ -98,19 +100,20 @@ public class Client extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
         MeshResponse meshResponse = new MeshResponse(200);
-        Integer id = jData.get("id");
-        String field = jData.get("field");
-        String value = jData.get("value");
-        mesh.db.Client client = (mesh.db.Client)em
-                .createNativeQuery("update client set " + field.replace("\\", "\\\\").replace("'", "\'")
-                        + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id returning *", mesh.db.Client.class)
-                .setParameter("id", id)
-                .getSingleResult();
-        meshResponse.setData(client);
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+            Integer id = jData.get("id");
+            String field = jData.get("field");
+            String value = jData.get("value");
+            mesh.db.Client client = (mesh.db.Client) em
+                    .createNativeQuery("update client set " + field.replace("\\", "\\\\").replace("'", "\'")
+                            + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id returning *", mesh.db.Client.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            meshResponse.setData(client);
+        }
         out.write(new json(meshResponse).toString());
     }
 }

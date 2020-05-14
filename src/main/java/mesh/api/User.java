@@ -29,21 +29,22 @@ public class User extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        em.clear();
-        String uid = request.getParameter("id");
         MeshResponse meshResponse = new MeshResponse(200);
-        Query query;
-        if(uid == null || uid.isEmpty()) {
-            query = em.createQuery("select U from User U order by U.fio asc");
-        } else {
-            query = em
-                    .createQuery("select U from User U where U.id = :uid order by U.fio asc")
-                    .setParameter("uid", Integer.parseInt(uid));
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            em.clear();
+            String uid = request.getParameter("id");
+            Query query;
+            if (uid == null || uid.isEmpty()) {
+                query = em.createQuery("select U from User U order by U.fio asc");
+            } else {
+                query = em
+                        .createQuery("select U from User U where U.id = :uid order by U.fio asc")
+                        .setParameter("uid", Integer.parseInt(uid));
+            }
+            List<mesh.db.User> users = query.getResultList();
+            meshResponse.setData(users.toArray());
         }
-        List<mesh.db.User> users = query.getResultList();
-        meshResponse.setData(users.toArray());
         out.write(new json(meshResponse).toString());
     }
 
@@ -53,22 +54,23 @@ public class User extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
         MeshResponse meshResponse = new MeshResponse(200);
-        String fio = jData.get("fio");
-        String login = jData.get("login");
-        String password = jData.get("password");
-        Integer access = jData.get("access");
-        mesh.db.User user = (mesh.db.User)em
-                .createNativeQuery("insert into users(fio, login, password, rid) values(:fio, :login, :password, :rid) returning *", mesh.db.User.class)
-                .setParameter("fio", fio)
-                .setParameter("login", login)
-                .setParameter("password", password)
-                .setParameter("rid", access)
-                .getSingleResult();
-        meshResponse.setData(user);
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+            String fio = jData.get("fio");
+            String login = jData.get("login");
+            String password = jData.get("password");
+            Integer access = jData.get("access");
+            mesh.db.User user = (mesh.db.User) em
+                    .createNativeQuery("insert into users(fio, login, password, rid) values(:fio, :login, :password, :rid) returning *", mesh.db.User.class)
+                    .setParameter("fio", fio)
+                    .setParameter("login", login)
+                    .setParameter("password", password)
+                    .setParameter("rid", access)
+                    .getSingleResult();
+            meshResponse.setData(user);
+        }
         out.write(new json(meshResponse).toString());
     }
 
@@ -77,19 +79,20 @@ public class User extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
         MeshResponse meshResponse = new MeshResponse(200);
-        Integer id = jData.get("id");
-        String field = jData.get("field");
-        String value = jData.get("value");
-        em.getTransaction().begin();
-        em.createNativeQuery("update users set " + field.replace("\\", "\\\\").replace("'", "\'")
-                + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id", mesh.db.User.class)
-                .setParameter("id", id)
-                .executeUpdate();
-        em.getTransaction().commit();
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+            Integer id = jData.get("id");
+            String field = jData.get("field");
+            String value = jData.get("value");
+            em.getTransaction().begin();
+            em.createNativeQuery("update users set " + field.replace("\\", "\\\\").replace("'", "\'")
+                    + " = '" + value.replace("\\", "\\\\").replace("'", "\'") + "' where id = :id", mesh.db.User.class)
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        }
         out.write(new json(meshResponse).toString());
     }
 
@@ -98,15 +101,16 @@ public class User extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         mesh.db.User me = (mesh.db.User) request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
-        Integer id = jData.get("id");
-        em.getTransaction().begin();
-        em.createNativeQuery("delete from users where id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
-        em.getTransaction().commit();
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
+            Integer id = jData.get("id");
+            em.getTransaction().begin();
+            em.createNativeQuery("delete from users where id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        }
         out.write(new json(new MeshResponse(200)).toString());
     }
 }

@@ -20,12 +20,3 @@ insert into users(login, password, fio, rid) values
   ('operator', 'operator', 'Оператор', 2),
   ('collector', 'collector', 'Коллектор', 3),
   ('accountant', 'accountant', 'Бухгалтер', 4);
-
-insert into client(firstName, lastName, patronymic, birth, isMale, address) values
-  ('Иванов', 'Иван', 'Сергеевич', '4.12.1960', true, 'Russia'),
-  ('Petr', 'Polk', 'Chabka', '12.04.2002', false, 'Russia, Kazan');
-
-insert into document(type,serial,number,issued,cid) values
-  (0, '4212', '456123', 8, 1),
-  (1, '42', '454654564654', 16, 1),
-  (0, '4004', '132465', 6454, 2);

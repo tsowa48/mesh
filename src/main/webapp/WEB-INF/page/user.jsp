@@ -10,17 +10,17 @@
         <div id='userInfo' class='list-group panel-body' data-id="<%=user.getId()%>">
             <div class='input-group'>
                 <span class='input-group-addon'><%=rb.getString("fio") %></span>
-                <input type='text' name='fio' class='form-control input-sm' required autofocus value="<%=user.getFio()%>"/>
+                <input type='text' name='fio' class='form-control input-sm' autofocus value="<%=user.getFio()%>"/>
             </div>
             <br>
             <div class='input-group'>
                 <span class='input-group-addon'><%=rb.getString("login")%></span>
-                <input type='text' name='login' class='form-control input-sm' required value="<%=user.getLogin()%>"/>
+                <input type='text' name='login' class='form-control input-sm' value="<%=user.getLogin()%>"/>
             </div>
             <br>
             <div class='input-group'>
                 <span class='input-group-addon'><%=rb.getString("role")%></span>
-                <select name='rid' class='form-control input-sm' required>
+                <select name='rid' class='form-control input-sm'>
                 <% for(mesh.db.Role role : roles)
                     out.println("<option " + (user.getRole().getId().equals(role.getId()) ? "selected" : "") + " value=\"" + role.getId() + "\">" + role.getName() + "</option>");
                 %></select>

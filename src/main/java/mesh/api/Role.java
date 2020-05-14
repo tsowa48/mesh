@@ -24,22 +24,23 @@ public class Role extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        mesh.db.User user = (mesh.db.User)request.getSession().getAttribute("me");
-        //TODO: check if user is null
-        EntityManager em = DBManager.getManager();
-        em.clear();
-        String rid = request.getParameter("id");
+        mesh.db.User me = (mesh.db.User)request.getSession().getAttribute("me");
         MeshResponse meshResponse = new MeshResponse(200);
-        Query query;
-        if(rid == null || rid.isEmpty()) {
-            query = em.createNativeQuery("select R.* from role R order by R.access asc", mesh.db.Role.class);
-        } else {
-            query = em
-                    .createNativeQuery("select R.* from role R where R.id = :rid order by R.access asc", mesh.db.Role.class)
-                    .setParameter("rid", Integer.parseInt(rid));
+        if(me != null) {
+            EntityManager em = DBManager.getManager();
+            em.clear();
+            String rid = request.getParameter("id");
+            Query query;
+            if (rid == null || rid.isEmpty()) {
+                query = em.createNativeQuery("select R.* from role R order by R.access asc", mesh.db.Role.class);
+            } else {
+                query = em
+                        .createNativeQuery("select R.* from role R where R.id = :rid order by R.access asc", mesh.db.Role.class)
+                        .setParameter("rid", Integer.parseInt(rid));
+            }
+            List<mesh.db.Role> roles = query.getResultList();
+            meshResponse.setData(roles.toArray());
         }
-        List<mesh.db.Role> roles = query.getResultList();
-        meshResponse.setData(roles.toArray());
         out.write(new json(meshResponse).toString());
     }
 }

@@ -6,12 +6,12 @@
             <div class='list-group panel-body'>
                 <div class='input-group <%=(request.getAttribute("error")==null?"":request.getAttribute("error"))%>'>
                     <span class='input-group-addon'><i class="glyphicon glyphicon-user"></i></span>
-                    <input type='text' name='login' class='form-control input-sm' required autofocus value="operator"/>
+                    <input type='text' name='login' class='form-control input-sm' required autofocus value=""/>
                 </div>
                 <br>
                 <div class='input-group <%=(request.getAttribute("error")==null?"":request.getAttribute("error"))%>'>
                     <span class='input-group-addon'><i class="glyphicon glyphicon-lock"></i></span>
-                    <input type='password' name='password' class='form-control input-sm' required value="operator"/>
+                    <input type='password' name='password' class='form-control input-sm' required value=""/>
                 </div>
             </div>
             <div class='panel-footer' style="padding-top:5px">
