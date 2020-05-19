@@ -5,15 +5,20 @@ package mesh.db;
  * @author tsowa
  */
 public class ApprovedLoan {
-  private Integer lid;
+  private Loan loan;
   private Double amount;
   private Integer date;
   private Double percent;
   
-  public ApprovedLoan(Integer lid, Double amount, Integer date, Double percent) {
-    this.lid = lid;
+  public ApprovedLoan(Loan loan, Double amount, Integer date, Double percent) {
+    this.loan = loan;
     this.amount = amount;
     this.date = date;
     this.percent = percent;
   }
+
+  public Loan getLoan() { return loan; }
+  public Double getAmount() { return amount; }
+  public Integer getDate() { return date; }
+  public Double getPercent() { return percent; }
 }

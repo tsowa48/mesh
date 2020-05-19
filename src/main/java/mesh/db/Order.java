@@ -18,9 +18,9 @@ public class Order {
   @Column(nullable = false)
   private Integer uid;//User id
   @Column(nullable = false)
-  public Integer cid;//Client id
+  private Integer cid;//Client id
   @Column(nullable = true)
-  public Integer lid;//Loan id
+  private Integer lid;//Loan id
   @Column(nullable = false)
   private Double desired_amount;//Wish summ
   @Column(nullable = false)
@@ -28,7 +28,7 @@ public class Order {
   @Column(nullable = false)
   private Integer date;//Date - order date
   @Transient
-  public Set<ApprovedLoan> approved;
+  private Set<ApprovedLoan> approved;
   
   public Order() {
     approved = new HashSet<>();
@@ -36,6 +36,8 @@ public class Order {
 
   public Integer getId() { return id; }
   public void setId(Integer id) { this.id = id; }
+  public Integer getCid() { return cid; }
+  public void setCid(Integer cid) { this.cid = cid; }
   public Integer getLid() { return lid; }
   public void setLid(Integer lid) { this.lid = lid; }
   public Double getDesired_amount() { return desired_amount; }

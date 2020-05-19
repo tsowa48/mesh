@@ -15,12 +15,12 @@ public final class fedsfm {
             connection.setDoOutput(true);
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             Long isTerorrist = br.lines().filter(line ->
-                line.contains(first_name.toUpperCase())
-                        && line.contains(last_name.toUpperCase())
-                && line.contains(patronymic.toUpperCase())
-                && line.contains(birth.toUpperCase())
+                    line.contains(first_name.toUpperCase())
+                    && line.contains(last_name.toUpperCase())
+                    && line.contains(patronymic.toUpperCase())
+                    && line.contains(birth.toUpperCase())
             ).count();
-            return (isTerorrist == 0L ? 0.0 : 1.0);
+            return (isTerorrist == 0L ? 1.0 : 0.0);
         } catch(Exception ex) {
             ex.printStackTrace();//DEBUG
             return 0.0;

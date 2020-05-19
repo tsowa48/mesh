@@ -76,7 +76,7 @@
         <div id='removeLoan' class='btn btn-danger btn-block'><%=rb.getString("remove") %></div>
         <a href="/" class='btn btn-primary btn-block'><%=rb.getString("back") %></a>
         <script type="text/javascript">
-            $('#removeUser').click(function() {
+            $('#removeLoan').click(function() {
                 $.ajax({
                     type: "DELETE",
                     async: false,

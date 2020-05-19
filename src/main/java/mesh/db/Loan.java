@@ -12,27 +12,27 @@ public class Loan {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(unique = true, nullable = false)
-  public Integer id;
+  private Integer id;
   //@Column(nullable = false)
   //private Integer cid;//Company id
   @Column(nullable = false)
-  public String name;
+  private String name;
   @Column(nullable = false)
-  public Double min_amount;
+  private Double min_amount;
   @Column(nullable = false)
-  public Double max_amount;
+  private Double max_amount;
   @Column(nullable = false)
-  public Integer min_term;//in days
+  private Integer min_term;//in days
   @Column(nullable = false)
-  public Integer max_term;//in days
+  private Integer max_term;//in days
   @Column(nullable = false)
-  public Double min_percent;
+  private Double min_percent;
   @Column(nullable = false)
-  public Double max_percent;
+  private Double max_percent;
   @Column(nullable = false)
-  public Double min_solvency;
+  private Double min_solvency;
   @Column(nullable = false)
-  public Double max_solvency;
+  private Double max_solvency;
   //@Column
   //private Integer calc_type;
   

@@ -31,8 +31,8 @@ public final class fssp {
    * @param birth
    * @return fullDuty
    */
-  public static Double get(String first_name, String last_name, String patronymic, String birth) {
-    return get(first_name, last_name, patronymic, birth, Region.ALL);
+  public static Double get(String first_name, String last_name, String patronymic, String birth, Boolean useProxy) {
+    return get(first_name, last_name, patronymic, birth, Region.ALL, useProxy);
   }
   
   /***
@@ -44,18 +44,20 @@ public final class fssp {
    * @param region
    * @return fullDuty
    */
-  public static Double get(String first_name, String last_name, String patronymic, String birth, Region region) {
+  public static Double get(String first_name, String last_name, String patronymic, String birth, Region region, Boolean useProxy) {
     if(queryCount == 0) {
       Pair<String, Integer> newProxy = ProxyList.next();
       proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(newProxy.getKey(), newProxy.getValue()));
-    } else if(queryCount == 9) {
+    } else if(queryCount >= 9) {
       queryCount = 0;
     }
+    String data = "";
     try {
-      HttpURLConnection connection = (HttpURLConnection)(new URL("https://api.fssprus.ru/api/v2/search?type=form&first_name="
+      URL addr = new URL("https://api.fssprus.ru/api/v2/search?type=form&first_name="
               + URLEncoder.encode(first_name, "UTF-8") + "&last_name=" + URLEncoder.encode(last_name, "UTF-8") + "&patronymic=" + URLEncoder.encode(patronymic, "UTF-8")
               + "&date=" + birth + "&region_id=" + region.getId() + "&udid="
-              + udid + "&ver=" + version.toString()).openConnection(proxy));
+              + udid + "&ver=" + version.toString());
+      HttpURLConnection connection = useProxy ? (HttpURLConnection)addr.openConnection(proxy) : (HttpURLConnection)addr.openConnection();
       connection.setRequestMethod("GET");
       connection.setRequestProperty("User-Agent", "android");
       //connection.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
@@ -64,14 +66,17 @@ public final class fssp {
       connection.setDoInput(true);
       connection.setDoOutput(true);
       BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      String data = br.lines().collect(Collectors.joining("\n"));
+      data = br.lines().collect(Collectors.joining("\n"));
       json J = new json(data);
       ErrorCode error_code = ErrorCode.values()[J.<Integer>get("error_code")];
 System.err.println("[FSSP]: error_code=" + J.<Integer>get("error_code"));//DEBUG
       switch(error_code) {
         case OK:
           ++queryCount;
-          json[] jx = J.<json>get("data").<json[]>get("list");
+          json _data = J.get("data");
+          if(_data.toString().contains("\"list\":[]"))
+              return 0.0;
+          json[] jx = _data.<json[]>get("list");
           return Arrays.stream(jx)
                   .map(it -> it.<String>get("subject"))
                   .mapToDouble(it -> {
@@ -94,6 +99,8 @@ System.err.println("[FSSP]: error_code=" + J.<Integer>get("error_code"));//DEBUG
           return -0.0;
       }
     } catch (Exception ex) {
+      System.err.println("PROXY:" + proxy.toString());
+      System.err.println("DATA:" + data);
       ex.printStackTrace();//DEBUG
       queryCount = 0;
       return -0.0;

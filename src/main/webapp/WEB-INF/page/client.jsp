@@ -90,30 +90,82 @@
             <div id="orders" class="tab-pane fade">
                 <% Set<Order> orders = client.getOrders(); %>
                 <div class="panel-body">
-                <table id="tblOrders" class="table table-bordered table-condensed table-hover">
-                    <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ")%></th><th><%=rb.getString("wish_date")%></th></tr></thead>
-                    <tbody><% for(Order order : orders) {
-                        out.write("<tr style='cursor:pointer;' oid='" + order.getId() + "'>");
-                        out.write("<td>" + order.getDate() + "</td>");
-                        out.write("<td>" + order.getDesired_amount() + "</td>");
-                        out.write("<td>" + order.getDesired_term() + "</td>");
-                        out.write("</tr>");
-                    }
-                    %>
-                    <tr oid='' id="newOrder">
-                        <td style='padding:0px'><input type="text" class="form-control input-sm" name="order_date" value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/></td>
-                        <td style='padding:0px'><input type="number" class="form-control input-sm" name="wish_summ" min="0.00" step="<%=rb.getString("max_amount_value")%>" value="0.00"/></td>
-                        <td style='padding:0px'><input type="text" class="form-control input-sm" name="wish_date" value="" placeholder="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>"/></td>
-                    </tr>
-                    </tbody>
-                </table>
+                 <table id="tblOrders" class="table table-bordered table-condensed table-hover">
+                        <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></th><th><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></th></tr></thead>
+                        <tbody><% for(Order order : orders) {
+                            String date = String.valueOf(order.getDate());
+                            out.write("<tr style='cursor:pointer;' oid='" + order.getId() + "'>");
+                            out.write("<td>" + date.substring(6, 8) + "." + date.substring(4, 6) + "." + date.substring(0, 4) + "</td>");
+                            out.write("<td>" + order.getDesired_amount() + "</td>");
+                            out.write("<td>" + order.getDesired_term() + "</td>");
+                            out.write("</tr>");
+                        }
+                        %>
+                        </tbody>
+                    </table>
+                    <a href="" id='modalOrder' data-toggle="modal" data-target="#newOrder" class='btn btn-success btn-block'><%=rb.getString("create") %></a>
                 </div>
+                <div id="newOrder" class="modal fade" role="dialog">
+                    <div class="panel panel-primary modal-dialog">
+                        <div class="panel-heading" style="padding: 5px; text-align: center;">
+                            <b><%=rb.getString("order")%></b>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
 
+                        <form class="modal-body" id="orderForm">
+                            <input type="hidden" name="cid" class="form-control" value="<%=request.getParameter("id") %>" />
+                            <div class='input-group'>
+                                <span class='input-group-addon'><%=rb.getString("date")%></span>
+                                <input type='text' name='order_date' class='form-control input-sm' required value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/>
+                            </div>
+                            <br>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></span>
+                                <input type='number' name='wish_summ' class='form-control input-sm' required min="0.00" step="<%=rb.getString("max_amount_value")%>" value="0.00" autofocus/>
+                            </div>
+                            <br>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></span>
+                                <input type='numeric' name='wish_date' class='form-control input-sm' required min="1" value="" placeholder="1"/>
+                            </div>
+                        </form>
+                        <div class="modal-footer" style="padding:5px;">
+                            <div class='btn btn-success' onclick="saveOrder();"><%=rb.getString("save")%></div>
+                            <div class='btn btn-default' data-dismiss="modal"><%=rb.getString("cancel")%></div>
+                        </div>
+                    </div>
+                </div>
                 <script type="text/javascript">
                     $('#tblOrders tbody tr[oid!=""]').on('click', function(x) {
                         window.location.href = '/order?id='+$(this).attr('oid');
                     });
-                    //TODO: create new order on fields changed
+                    function saveOrder() {
+                        var fields = $('#orderForm').find('.form-control');
+                        var newOrder = {};
+                        fields.each(function(index) {
+                            newOrder[$(this).attr('name')] = $(this).val();
+                        });
+                        $.ajax({
+                            type: "POST",
+                            async: true,
+                            url: "/api/order",
+                            data: JSON.stringify(newOrder),
+                            xhrFields: { withCredentials: true }
+                        }).error(function(msg) {
+                            console.log(msg);
+                            //TODO: highlight on error fields ?
+                        }).success(function(data) {
+                            var tr = '<tr style="cursor:pointer;" oid="' + data.data.id + '"><td>'
+                                + data.data.date.toString().substring(6,8)+'.'+data.data.date.toString().substring(4,6)+'.'+data.data.date.toString().substring(0,4)
+                                + '</td><td>' + data.data.desired_amount + '</td><td>' + data.data.desired_term + '</td></tr>';
+                            $('#tblOrders tbody').append(tr);
+                            $('#tblOrders tbody tr[oid!=""]').on('click', function(x) {
+                                window.location.href = '/order?id='+$(this).attr('oid');
+                            });
+                            $('#orderForm').trigger("reset");
+                            $('#newOrder').modal('toggle');
+                        });
+                    };
                 </script>
             </div>
         </div>

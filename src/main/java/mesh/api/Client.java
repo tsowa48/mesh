@@ -38,7 +38,7 @@ public class Client extends HttpServlet {
             Query query;
             if (q == null || q.isEmpty()) {
                 query = em
-                        .createNativeQuery("select C.* from client C, orders O, document D where D.cid=C.id and D.type=0 and C.id=O.cid and O.uid = :uid order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class)
+                        .createNativeQuery("select distinct C.* from client C, orders O, document D where D.cid=C.id and D.type=0 and C.id=O.cid and O.uid = :uid order by C.firstname asc, C.lastname asc, C.patronymic asc", mesh.db.Client.class)
                         .setParameter("uid", me.getId());
             } else {
                 String sql = "select C.* from client C, document D where D.cid=C.id and D.type=0 and ";

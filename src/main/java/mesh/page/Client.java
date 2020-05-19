@@ -20,6 +20,7 @@ public class Client extends HttpServlet {
             try {
                 Integer cid = Integer.parseInt(request.getParameter("id"));
                 EntityManager em = DBManager.getManager();
+                em.clear();
                 mesh.db.Client client = (mesh.db.Client)em.createQuery("select C from Client C join fetch C.documents where C.id = :cid")
                         .setParameter("cid", cid)
                         .getSingleResult();
