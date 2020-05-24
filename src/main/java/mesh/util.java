@@ -1,13 +1,13 @@
 package mesh;
 
 import mesh.db.*;
+import mesh.plugin.cbr.cbr;
 import mesh.plugin.fedsfm.fedsfm;
+import mesh.plugin.fedstat.fedstat;
 import mesh.plugin.fms.fms;
 import mesh.plugin.fssp.fssp;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  *
@@ -20,11 +20,11 @@ public class util {
 
   public static String detectField(String query) {
     String criterion = "LOWER(C.address) like '%" + query + "%' or LOWER(C.firstname) like '%" + query + "%' or LOWER(C.lastname) like '%" + query + "%' or LOWER(C.patronymic) like '%" + query + "%'";
-    if(containsInt(query))
+    if(containsInt(query) && !query.contains(" "))
       criterion = "LOWER(C.birth) like '%" + query + "%' or LOWER(D.serial) like '%" + query + "%' or LOWER(D.number) like '%" + query + "%' or LOWER(D.issued) like '%" + query + "%'";
     if(query.contains(" ")) {
       String[] subQuery = query.split(" ");
-      if(containsInt(query)) {
+      if(containsInt(subQuery[0]) && containsInt(subQuery[1])) {
         criterion = "LOWER(D.serial) like '%" + subQuery[0] + "%' and LOWER(D.number) like '%" + subQuery[1] + "%'";
       } else {
         String subCrt;
@@ -34,7 +34,8 @@ public class util {
           subCrt = "LOWER(C.firstname) like '%" + subQuery[0] + "%' and LOWER(C.lastname) like '%" + subQuery[1] + "%'";
         else
           subCrt = "LOWER(C.firstname) like '%" + subQuery[0] + "%'";
-        criterion = "LOWER(C.address) like '%" + query + "%' or " + subCrt;
+        String subCrtAddr = String.join("%' and LOWER(C.address) like '%", subQuery);
+        criterion = "(LOWER(C.address) like '%" + subCrtAddr + "%') or (" + subCrt + ")";
       }
     }
     return criterion;
@@ -47,16 +48,42 @@ public class util {
             || s.contains("9");
   }
   
-  public static Double recountSolvency(Client client) {
-    Double solvency = 1.0;
-    //Double fsspDuty = fssp.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth(), false);
-    Double fedsfmList = fedsfm.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth());
+  public static Double recountSolvency(Client client, Order currentOrder) {
+    Double solvency;
     Document passport = client.getDocuments().stream().filter(doc -> doc.getType() == 0).findFirst().get();
+    Double salary = client.getSalary() == null ? 0.0 : client.getSalary();
+    Double monthAmount = maxAmount(currentOrder.getDesired_amount(), currentOrder.getDesired_term(), cbr.getKeyRate());
+
+    Double fsspDuty = fssp.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth(), false);
+    Double fedsfmList = fedsfm.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth());
     Double fmsExpired = fms.expiredDocument(passport);
-    //solvency -= fsspDuty;//TODO: convert fsspDuty to [0.0; 1.0]
+    Double livingWage = fedstat.getLivingWage(new Date().getYear() + 1900 - 1);
+
+    salary -= livingWage;
+    salary -= fsspDuty;
+
+    if(salary <= 0.0)
+      return 0.0;
+
+    solvency = 1.0 - monthAmount / salary;
     solvency *= fedsfmList;
     solvency *= fmsExpired;
+
+    solvency = solvency == null ? 0.0 : solvency;
+    solvency = solvency < 0.0 ? 0.0 : solvency;
+    solvency = solvency > 1.0 ? 1.0 : solvency;
     return solvency;
+  }
+
+  /**
+   * Count amount for first month
+   * @param D full amount
+   * @param n months
+   * @param i percent
+   * @return Y - max(monthAmount)
+   */
+  private static Double maxAmount(Double D, Integer n, Double i) {
+    return D * i + D / (12 * n);
   }
   
   public static Set<ApprovedLoan> approveLoans(Client client, List<Loan> loans) {
@@ -75,56 +102,5 @@ public class util {
       aloans.add(al);
     });
     return aloans;
-  }
-
-  public static void fuckDB(int maxRows) {
-    String clientLine = "";
-    String passportLine = "";
-    javax.persistence.EntityManager em = DBManager.getManager();
-    em.getTransaction().begin();
-    try {
-      java.io.BufferedReader br = java.nio.file.Files.newBufferedReader(java.nio.file.Paths.get("/work/data/48_utf.csv"));
-      //int rowCount = maxRows;
-      String line = "";
-      while(((line = br.readLine()) != null && line.length() > 0)) {
-        String[] currentLine = line.split(";");
-        String firstName = currentLine[1];
-        String lastName = currentLine[2];
-        String patronymic = currentLine[3];
-        String birth = currentLine[4].replace("/", ".");
-        String isMale = currentLine[5].toLowerCase().startsWith("м") ? "true" : "false";
-        String address = "";
-        for (int i = 64; i < 79; i++) {
-          if (!currentLine[i].isEmpty())
-            address += currentLine[i] + ", ";
-        }
-        address = address.substring(0, address.length() - 2);
-        clientLine = "insert into client(firstName, lastName, patronymic, birth, isMale, address) values (:firstName, :lastName, :patronymic, '" + birth + "', " + isMale + ", :address) returning id";
-
-        String cid = em.createNativeQuery(clientLine)
-                .setParameter("firstName", firstName)
-                .setParameter("lastName", lastName)
-                .setParameter("patronymic", patronymic)
-                .setParameter("address", address)
-                .getSingleResult().toString();
-
-        String serial = currentLine[39].replace(" ", "");
-        String number = currentLine[40];
-        String issued = currentLine[44].replace("/", ".");
-        String issuedBy = currentLine[42];
-        String code = currentLine.length > 286 && currentLine[287].length() > 1 ? currentLine[287].replace("-", "") : "0";
-        passportLine = "insert into document(type, serial, number, issued, issuedBy, departmentCode, cid) values (0, '" + serial + "', '" + number + "', '" + issued + "', '" + issuedBy + "', " + code + ", " + cid + ")";
-        em.createNativeQuery(passportLine).executeUpdate();
-
-        //rowCount--;
-      }
-      em.getTransaction().commit();
-      System.out.println("----- OK");
-    } catch (Exception ex) {
-      System.out.println(clientLine);
-      System.out.println(passportLine);
-      //ex.printStackTrace();
-      em.getTransaction().rollback();
-    }
   }
 }

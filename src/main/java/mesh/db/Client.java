@@ -14,7 +14,7 @@ public class Client {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(unique = true, nullable = false)
-  public Integer id;
+  private Integer id;
   @Column(name = "firstname", nullable = false)
   private String firstName;
   @Column(name = "lastname", nullable = false)
@@ -27,6 +27,8 @@ public class Client {
   private Boolean isMale;
   @Column(nullable = false)
   private String address;
+  @Column(name = "salary", nullable = true)
+  private Double salary;
   @Column(name = "solvency", nullable = true)
   private Double solvency;
   
@@ -46,6 +48,7 @@ public class Client {
   public String getLastName() { return this.lastName; }
   public String getPatronymic() { return this.patronymic; }
   public String getBirth() { return this.birth; }
+  public Double getSalary() { return this.salary; }
   public Double getSolvency() { return this.solvency; }
   public Set<Document> getDocuments() { return this.documents; }
   public Boolean getSex() { return isMale; }
@@ -59,6 +62,7 @@ public class Client {
   public void setBirth(String birth) { this.birth = birth; }
   public void setMale(Boolean male) { isMale = male; }
   public void setAddress(String address) { this.address = address; }
+  public void setSalary(Double salary) { this.salary = salary; }
   public void setDocuments(Set<Document> documents) { this.documents = documents; }
   public void addDocument(Document document) { this.documents.add(document); }
 }

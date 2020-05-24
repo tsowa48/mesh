@@ -67,6 +67,11 @@
                             <textarea name='address' class='form-control input-sm' required rows="4"></textarea>
                         </div>
                         <br>
+                        <div class='input-group'>
+                            <span class='input-group-addon'><%=rb.getString("salary")%></span>
+                            <input type='number' name='salary' class='form-control input-sm' min="1.0" required value=""/>
+                        </div>
+                        <br>
                         <table class="table table-bordered table-condensed">
                             <tr><th><%=rb.getString("document_type")%></th><th><%=rb.getString("serial")%></th><th><%=rb.getString("number")%></th><th><%=rb.getString("document_issued")%></th></tr>
                             <% for(Document.Type type : Document.Type.values())

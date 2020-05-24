@@ -52,6 +52,11 @@
                         <textarea name='address' class='form-control input-sm' required rows="4"><%=client.getAddress()%></textarea>
                     </div>
                     <br>
+                    <div class='input-group'>
+                        <span class='input-group-addon'><%=rb.getString("salary")%></span>
+                        <input type='number' name='salary' class='form-control input-sm' min="1.0" required value="<%=client.getSalary()%>"/>
+                    </div>
+                    <br>
                     <table class="table table-bordered table-condensed">
                         <tr><th><%=rb.getString("document_type")%></th><th><%=rb.getString("serial")%></th><th><%=rb.getString("number")%></th><th><%=rb.getString("document_issued")%></th></tr>
                         <% Set<Document> docs = client.getDocuments();
@@ -94,7 +99,7 @@
                         <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></th><th><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></th></tr></thead>
                         <tbody><% for(Order order : orders) {
                             String date = String.valueOf(order.getDate());
-                            out.write("<tr style='cursor:pointer;' oid='" + order.getId() + "'>");
+                            out.write("<tr style='cursor:pointer;' " + (order.getLid() != null ? "class='success'" : "") + "' oid='" + (order.getLid() == null || client.getSolvency() == 0.0 ? order.getId() : "") + "'>");
                             out.write("<td>" + date.substring(6, 8) + "." + date.substring(4, 6) + "." + date.substring(0, 4) + "</td>");
                             out.write("<td>" + order.getDesired_amount() + "</td>");
                             out.write("<td>" + order.getDesired_term() + "</td>");
