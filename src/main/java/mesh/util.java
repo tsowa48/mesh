@@ -52,7 +52,7 @@ public class util {
     Double solvency;
     Document passport = client.getDocuments().stream().filter(doc -> doc.getType() == 0).findFirst().get();
     Double salary = client.getSalary() == null ? 0.0 : client.getSalary();
-    Double monthAmount = maxAmount(currentOrder.getDesired_amount(), currentOrder.getDesired_term(), cbr.getKeyRate());
+    Double monthPayment = monthAmount(currentOrder.getDesired_amount(), currentOrder.getDesired_term() * 1.0, cbr.getKeyRate() * 100.0);
 
     Double fsspDuty = fssp.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth(), false);
     Double fedsfmList = fedsfm.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth());
@@ -65,7 +65,7 @@ public class util {
     if(salary <= 0.0)
       return 0.0;
 
-    solvency = 1.0 - monthAmount / salary;
+    solvency = 1.0 - monthPayment / salary;
     solvency *= fedsfmList;
     solvency *= fmsExpired;
 
@@ -82,23 +82,26 @@ public class util {
    * @param i percent
    * @return Y - max(monthAmount)
    */
-  private static Double maxAmount(Double D, Integer n, Double i) {
-    return D * i + D / (12 * n);
+  private static Double monthAmount(Double D, Double n, Double i) {
+    return D * (1 + (n.intValue() < 12 ? (n / 12.0) : n) * (i / 100.0)) / n;
   }
   
-  public static Set<ApprovedLoan> approveLoans(Client client, List<Loan> loans) {
-    final Double solvency = client.getSolvency() == null ? 0.0 : client.getSolvency();//TODO: fixme
+  public static Set<ApprovedLoan> approveLoans(Client client, Order order, List<Loan> loans) {
+    final Double solvency = client.getSolvency() == null ? 0.0001 : client.getSolvency();
     final Set<ApprovedLoan> aloans = new HashSet<>();
     final Integer isWhiteListed = solvency == 0.0 ? 0 : 1;
+    final Double desiredAmount = order.getDesired_amount();
+    final Double n = order.getDesired_term() * 1.0;
     loans.forEach(it -> {
-      Double percentSolvency = solvency >= it.getMaxSolvency() ? 1.0 :
-              (solvency < it.getMinSolvency() ? 0.0 :
-              (solvency == it.getMinSolvency() ? 0.01 :
-              (solvency - it.getMinSolvency()) / (it.getMaxSolvency() - it.getMinSolvency())));
-      Double amount = it.getMinAmount() + (it.getMaxAmount() - it.getMinAmount()) * percentSolvency;
-      Integer term = ((Long)Math.round(it.getMinTerm() + (it.getMaxTerm() - it.getMinTerm()) * percentSolvency)).intValue();
-      Double percent = it.getMaxTerm() - (it.getMaxTerm() - it.getMinTerm()) * percentSolvency;
-      ApprovedLoan al = new ApprovedLoan(it, amount * isWhiteListed, term * isWhiteListed, percent * isWhiteListed);
+      Double amount = desiredAmount;
+      if(it.getMinAmount() > desiredAmount)
+        amount = it.getMinAmount();
+      else if(it.getMaxAmount() < desiredAmount)
+        amount = it.getMaxAmount();
+      Integer term = ((Long)Math.round(it.getMinTerm() + (it.getMaxTerm() - it.getMinTerm()) * solvency)).intValue();
+      Double percent = it.getMaxPercent() - (it.getMaxPercent() - it.getMinPercent()) * solvency;
+      Double monthPayment = monthAmount(amount, n, percent);
+      ApprovedLoan al = new ApprovedLoan(it, amount * isWhiteListed, term * isWhiteListed, percent * isWhiteListed, monthPayment);
       aloans.add(al);
     });
     return aloans;

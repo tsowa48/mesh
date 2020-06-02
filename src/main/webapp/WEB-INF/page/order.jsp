@@ -5,25 +5,27 @@
 <body class="container">
 <main class="panel panel-primary vertical-center modal-dialog">
     <div class='panel-heading' style='text-align:center;'><b><%=rb.getString("order") %></b></div>
-    <% mesh.db.Order order = (mesh.db.Order)request.getAttribute("order"); %>
+    <% mesh.db.Order order = (mesh.db.Order)request.getAttribute("order");
+        mesh.db.Client client = (mesh.db.Client)request.getAttribute("client"); %>
     <div id='orderInfo' class='panel-body' oid="<%=order.getId()%>">
         <% Set<mesh.db.ApprovedLoan> approved = order.getApproved();
-            Double amount = order.getDesired_amount();
+            Double solvency = client.getSolvency();
             for(mesh.db.ApprovedLoan apl : approved) {
                 mesh.db.Loan cl = apl.getLoan();
                 String hasColor = "";
-                if(cl.getMaxAmount() > amount && cl.getMinAmount() < amount)
+                if(cl.getMaxSolvency() > solvency && cl.getMinSolvency() < solvency)
                     hasColor = "has-success";
-                else if(cl.getMinAmount() > amount)
-                    hasColor = "has-warning";
-                else if(cl.getMaxAmount() < amount)
+                else if(cl.getMinSolvency() > solvency)
                     hasColor = "has-error";
-                out.print("<div class='input-group " + hasColor + "' lid='" + (cl.getMaxAmount() < amount ? "0" : cl.getId())
-                        + "' style='cursor:" + (cl.getMaxAmount() < amount ? "not-allowed" : "pointer") + ";'>");
+                else if(cl.getMaxSolvency() < solvency)
+                    hasColor = "has-warning";
+                out.print("<div class='input-group " + hasColor + "' lid='" + (cl.getMaxSolvency() < solvency ? "0" : cl.getId())
+                        + "' style='cursor:" + (cl.getMaxSolvency() < solvency ? "not-allowed" : "pointer") + ";'>");
                 out.print("<span class='input-group-addon'>" + cl.getName() + "</span>");
-                out.print("<div class='form-control input-sm'>" + apl.getAmount() + " " + rb.getString("currency") + "</div>");
+                out.print("<div class='form-control input-sm'>" + apl.getAmount().intValue() + " " + rb.getString("currency") + "</div>");
                 out.print("<div class='form-control input-sm'>" + apl.getDate() + " " + rb.getString("days") + "</div>");
-                out.print("<div class='form-control input-sm'>" + apl.getPercent() / 100.0 + " %</div>");
+                out.print("<div class='form-control input-sm'>" + Math.ceil(apl.getPercent() * 10.0) / 10.0 + " %</div>");
+                out.print("<div class='form-control input-sm'>" + apl.getMonthPayment().intValue() + " " + rb.getString("currency") + "/" + rb.getString("days") + "</div>");
                 out.print("</div><br>");
             } %>
     </div>

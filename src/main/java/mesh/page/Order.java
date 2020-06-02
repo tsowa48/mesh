@@ -23,6 +23,7 @@ public class Order extends HttpServlet {
             try {
                 Integer oid = Integer.parseInt(request.getParameter("id"));
                 EntityManager em = DBManager.getManager();
+                em.clear();
                 mesh.db.Order order = (mesh.db.Order) em.createQuery("select O from Order O where O.id = :oid")
                         .setParameter("oid", oid)
                         .getSingleResult();
@@ -31,11 +32,12 @@ public class Order extends HttpServlet {
                         .getSingleResult();
                 List<mesh.db.Loan> loans = em.createQuery("select L from Loan L").getResultList();
 
-                order.setApproved(util.approveLoans(client, loans));
+                order.setApproved(util.approveLoans(client, order, loans));
 
                 request.setCharacterEncoding("UTF-8");
                 response.setHeader("Content-Type", "text/html;charset=UTF-8");
                 request.setAttribute("order", order);
+                request.setAttribute("client", client);
                 request.getRequestDispatcher("WEB-INF/page/order.jsp").include(request, response);
             } catch (Exception ex) {
                 ex.printStackTrace();

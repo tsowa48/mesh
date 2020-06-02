@@ -4,7 +4,7 @@
 <%@include file="/WEB-INF/page/_header.jsp"%>
 <body class="container">
 <main class="panel panel-primary vertical-center modal-dialog">
-    <div class='panel-heading' style='text-align:center;'><b><%=rb.getString("user") %></b></div>
+    <div class='panel-heading' style='text-align:center;'><b><%=rb.getString("loan") %></b></div>
     <% mesh.db.Loan loan = (mesh.db.Loan)request.getAttribute("loan"); %>
     <div id='loanInfo' class='list-group panel-body' data-id="<%=loan.getId()%>">
         <div class='input-group'>
