@@ -35,17 +35,17 @@
             <form class="modal-body" id="clientForm">
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("first_name")%></span>
-                            <input type='text' name='firstName' class='form-control input-sm' required value=""/>
+                            <input type='text' name='firstname' class='form-control input-sm' required value="""/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("last_name")%></span>
-                            <input type='text' name='lastName' class='form-control input-sm' required value=""/>
+                            <input type='text' name='lastname' class='form-control input-sm' required value="""/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("patronymic")%></span>
-                            <input type='text' name='patronymic' class='form-control input-sm' required value=""/>
+                            <input type='text' name='patronymic' class='form-control input-sm' required value="""/>
                         </div>
                         <br>
                         <div class='input-group'>
@@ -56,7 +56,7 @@
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("sex")%></span>
                             <select name='sex' class='form-control input-sm' required>
-                                <option disable selected></option>
+                                <option disable selected value="1"></option>
                                 <option value="1"><%=rb.getString("male")%></option>
                                 <option value="0"><%=rb.getString("female")%></option>
                             </select>
@@ -74,11 +74,11 @@
                         <br>
                         <table class="table table-bordered table-condensed">
                             <tr><th><%=rb.getString("document_type")%></th><th><%=rb.getString("serial")%></th><th><%=rb.getString("number")%></th><th><%=rb.getString("document_issued")%></th></tr>
-                            <% for(Document.Type type : Document.Type.values())
-                                out.write("<tr><td>" + rb.getString("document_type_" + type.val()) + "</td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_s_" + type.val() + "' value=''/></td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_n_" + type.val() + "' value=''/></td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='doc_i_" + type.val() + "' value='' placeholder='01.01.2000'/></td></tr>");
+                            <% //for(Document.Type type : Document.Type.values())
+                                out.write("<tr><td>" + rb.getString("document_type_0") + "</td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='serial' value=''/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='number' value=''/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='issued' value='' placeholder='01.01.2000'/></td></tr>");
                             %>
                         </table>
             </form>
@@ -89,9 +89,19 @@
         </div>
         <script type="text/javascript">
             function saveClient() {
+                //$('#clientForm').validate();
                 var fields = $('#clientForm').find('.form-control');
                 var newClient = {};
                 fields.each(function(index) {
+                    $(this).parent().removeClass('has-error');
+                    if($(this).attr('name') === 'birth' && !(new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())) {
+                        $(this).parent().addClass('has-error');
+                        return;
+                    }
+                    if($(this).attr('name') === 'issued' && !(new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())) {
+                        $(this).parent().addClass('has-error');
+                        return;
+                    }
                     newClient[$(this).attr('name')] = $(this).val();
                 });
                 $.ajax({
@@ -103,9 +113,12 @@
                         else return v;
                     }),
                     xhrFields: { withCredentials: true }
-                }).error(function(msg) {
-                    console.log(msg);
-                    //TODO: highlight on error fields ?
+                }).error(function(jq, status, msg) {
+                    fields.each(function(index) {
+                        if (jq.responseText.includes($(this).attr('name'))) {
+                            $(this).parent().addClass('has-error');
+                        }
+                    });
                 }).success(function(data) {
                     $('#newClient').modal('toggle');
                     $('#clientForm').trigger("reset");
@@ -200,7 +213,7 @@
                 }).success(function(data) {
                     var tr = '<tr style="cursor:pointer;" uid="'+data.data.id+'"><td>'+data.data.login+'</td><td>'+data.data.fio+'</td><td>'+data.data.role.name+'</td></tr>';
                     $('#tblUsers tbody').append(tr);
-                    $('#tblUsers tbody tr[uid!=""]').on('click', function(x) {
+                    $('#tblUsers tbody tr[uid!=""]').on('click', function(x) {12344
                         window.location.href = '/user?id='+$(this).attr('uid');
                     });
                     $('#userForm').trigger("reset");
@@ -272,6 +285,7 @@
                 var fields = $('#loanForm').find('.form-control');
                 var newLoan = {};
                 fields.each(function(index) {
+                    $(this).parent().removeClass('has-error');
                     newLoan[$(this).attr('name')] = $(this).val();
                 });
                 $.ajax({
@@ -283,9 +297,12 @@
                         return v;
                     }),
                     xhrFields: { withCredentials: true }
-                }).error(function(msg) {
-                    console.log(msg);
-                    //TODO: highlight on error fields ?
+                }).error(function(jq,s,m) {
+                    fields.each(function(index) {
+                        if (jq.responseText.includes($(this).attr('name'))) {
+                            $(this).parent().addClass('has-error');
+                        }
+                    });
                 }).success(function(data) {
                     var tr = '<tr style="cursor:pointer;" lid="'+data.data.id+'"><td>'+data.data.name+'</td><td>'+data.data.min_amount+' - '+data.data.max_amount+'</td><td>'+data.data.min_term+' - '+data.data.max_term+'</td><td>'+data.data.min_percent+' - '+data.data.max_percent+'</td></tr>';
                     $('#tblLoans tbody').append(tr);

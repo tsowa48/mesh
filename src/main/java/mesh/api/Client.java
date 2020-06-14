@@ -61,16 +61,16 @@ public class Client extends HttpServlet {
         if(me != null) {
             EntityManager em = DBManager.getManager();
             json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
-            String firstName = jData.get("firstName");
-            String lastName = jData.get("lastName");
+            String firstName = jData.get("firstname");
+            String lastName = jData.get("lastname");
             String patronymic = jData.get("patronymic");
             String birth = jData.get("birth");
             String sex = jData.get("sex");
             String address = jData.get("address");
             //TODO: fill documents
-            String doc0s = jData.get("doc_s_0");
-            String doc0n = jData.get("doc_n_0");
-            String doc0i = jData.get("doc_i_0");
+            String doc0s = jData.get("serial");
+            String doc0n = jData.get("number");
+            String doc0i = jData.get("issued");
             mesh.db.Client client = (mesh.db.Client) em
                     .createNativeQuery("insert into client(firstname, lastname, patronymic, birth, ismale, address) values(:fn, :ln, :p, :b, :m, :a) returning *", mesh.db.Client.class)
                     .setParameter("fn", firstName)

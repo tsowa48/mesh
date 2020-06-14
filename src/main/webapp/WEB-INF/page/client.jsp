@@ -94,7 +94,7 @@
             </div>
             <div id="orders" class="tab-pane fade">
                 <% Set<Order> orders = client.getOrders(); %>
-                <div class="panel-body">
+                <div class="panel-body">12344
                  <table id="tblOrders" class="table table-bordered table-condensed table-hover">
                         <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></th><th><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></th></tr></thead>
                         <tbody><% for(Order order : orders) {
@@ -121,17 +121,17 @@
                             <input type="hidden" name="cid" class="form-control" value="<%=request.getParameter("id") %>" />
                             <div class='input-group'>
                                 <span class='input-group-addon'><%=rb.getString("date")%></span>
-                                <input type='text' name='order_date' class='form-control input-sm' required value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/>
+                                <input type='text' name='date' class='form-control input-sm' required value="<%=new SimpleDateFormat("dd.MM.yyyy").format(new Date())%>" disabled/>
                             </div>
                             <br>
                             <div class='input-group'>
                                 <span class='input-group-addon'><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></span>
-                                <input type='number' name='wish_summ' class='form-control input-sm' required min="0.00" step="<%=rb.getString("max_amount_value")%>" value="0.00" autofocus/>
+                                <input type='number' name='desired_amount' class='form-control input-sm' required min="0.00" step="<%=rb.getString("max_amount_value")%>" value="0.00" autofocus/>
                             </div>
                             <br>
                             <div class='input-group'>
                                 <span class='input-group-addon'><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></span>
-                                <input type='numeric' name='wish_date' class='form-control input-sm' required min="1" value="" placeholder="1"/>
+                                <input type='numeric' name='desired_term' class='form-control input-sm' required min="1" value="" placeholder="1"/>
                             </div>
                         </form>
                         <div class="modal-footer" style="padding:5px;">
@@ -148,6 +148,7 @@
                         var fields = $('#orderForm').find('.form-control');
                         var newOrder = {};
                         fields.each(function(index) {
+                            $(this).parent().removeClass('has-error');
                             newOrder[$(this).attr('name')] = $(this).val();
                         });
                         $.ajax({
@@ -156,9 +157,12 @@
                             url: "/api/order",
                             data: JSON.stringify(newOrder),
                             xhrFields: { withCredentials: true }
-                        }).error(function(msg) {
-                            console.log(msg);
-                            //TODO: highlight on error fields ?
+                        }).error(function(jq,s,m) {
+                            fields.each(function(index) {
+                                if (jq.responseText.includes($(this).attr('name'))) {
+                                    $(this).parent().addClass('has-error');
+                                }
+                            });
                         }).success(function(data) {
                             var tr = '<tr style="cursor:pointer;" oid="' + data.data.id + '"><td>'
                                 + data.data.date.toString().substring(6,8)+'.'+data.data.date.toString().substring(4,6)+'.'+data.data.date.toString().substring(0,4)

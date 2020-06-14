@@ -32,8 +32,8 @@ public class Order extends HttpServlet {
             EntityManager em = DBManager.getManager();
             json jData = new json(request.getReader().lines().collect(Collectors.joining(" ")));
             Integer cid = Integer.parseInt(jData.get("cid"));
-            Double wish_summ = Double.parseDouble(jData.get("wish_summ"));
-            Integer wish_date = Integer.parseInt(jData.get("wish_date"));
+            Double desired_amount = Double.parseDouble(jData.get("desired_amount"));
+            Integer desired_term = Integer.parseInt(jData.get("desired_term"));
             Integer order_date = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(new Date()));
 
             em.getTransaction().begin();
@@ -41,8 +41,8 @@ public class Order extends HttpServlet {
                     .createNativeQuery("insert into orders(uid, cid, desired_amount, desired_term, date) values(:uid, :cid, :desired_amount, :desired_term, :date) returning *", mesh.db.Order.class)
                     .setParameter("uid", me.getId())
                     .setParameter("cid", cid)
-                    .setParameter("desired_amount", wish_summ)
-                    .setParameter("desired_term", wish_date)
+                    .setParameter("desired_amount", desired_amount)
+                    .setParameter("desired_term", desired_term)
                     .setParameter("date", order_date)
                     .getSingleResult();
             em.flush();
