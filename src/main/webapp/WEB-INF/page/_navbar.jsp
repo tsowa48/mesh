@@ -35,22 +35,22 @@
             <form class="modal-body" id="clientForm">
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("first_name")%></span>
-                            <input type='text' name='firstname' class='form-control input-sm' required value="""/>
+                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено" name='firstname' class='form-control input-sm' required value=""/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("last_name")%></span>
-                            <input type='text' name='lastname' class='form-control input-sm' required value="""/>
+                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено" name='lastname' class='form-control input-sm' required value=""/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("patronymic")%></span>
-                            <input type='text' name='patronymic' class='form-control input-sm' required value="""/>
+                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено" name='patronymic' class='form-control input-sm' required value=""/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("birth")%></span>
-                            <input type='text' name='birth' class='form-control input-sm' required value="" placeholder="01.01.2000"/>
+                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено в соответствии с форматом: ДД.ММ.ГГГГ" name='birth' class='form-control input-sm' required value="" placeholder="01.01.2000"/>
                         </div>
                         <br>
                         <div class='input-group'>
@@ -69,16 +69,16 @@
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("salary")%></span>
-                            <input type='number' name='salary' class='form-control input-sm' min="1.0" required value=""/>
+                            <input type='number' data-toggle="tooltip" title="Поле должно быть заполнено неотрицательным числом" name='salary' class='form-control input-sm' min="1.0" required value=""/>
                         </div>
                         <br>
                         <table class="table table-bordered table-condensed">
                             <tr><th><%=rb.getString("document_type")%></th><th><%=rb.getString("serial")%></th><th><%=rb.getString("number")%></th><th><%=rb.getString("document_issued")%></th></tr>
                             <% //for(Document.Type type : Document.Type.values())
                                 out.write("<tr><td>" + rb.getString("document_type_0") + "</td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='serial' value=''/></td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='number' value=''/></td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='text' name='issued' value='' placeholder='01.01.2000'/></td></tr>");
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='numeric' name='serial' min='100' max='9999' value=''/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='numeric' name='number' min='1' max='999999' value=''/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' data-toggle='tooltip' title='Поле должно быть заполнено в соответствии с форматом: ДД.ММ.ГГГГ' type='text' name='issued' value='' placeholder='01.01.2000'/></td></tr>");
                             %>
                         </table>
             </form>
@@ -88,18 +88,30 @@
             </div>
         </div>
         <script type="text/javascript">
+            function toDate(dateStr) {
+                var parts = dateStr.split(".")
+                return new Date(parts[2], parts[1] - 1, parts[0])
+            }
+            function calculateAge(birthday) {
+                var ageDifMs = Date.now() - birthday;
+                var ageDate = new Date(ageDifMs);
+                return Math.abs(ageDate.getUTCFullYear() - 1970);
+            }
+
             function saveClient() {
                 //$('#clientForm').validate();
                 var fields = $('#clientForm').find('.form-control');
                 var newClient = {};
                 fields.each(function(index) {
                     $(this).parent().removeClass('has-error');
-                    if($(this).attr('name') === 'birth' && !(new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())) {
+                    if($(this).attr('name') === 'birth' && ((new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())===false || (calculateAge(toDate($(this).val())) < 18))) {
                         $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
                         return;
                     }
-                    if($(this).attr('name') === 'issued' && !(new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())) {
+                    if($(this).attr('name') === 'issued' && (new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())===false) {
                         $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
                         return;
                     }
                     newClient[$(this).attr('name')] = $(this).val();
@@ -117,6 +129,7 @@
                     fields.each(function(index) {
                         if (jq.responseText.includes($(this).attr('name'))) {
                             $(this).parent().addClass('has-error');
+                            $(this).tooltip().mouseover();
                         }
                     });
                 }).success(function(data) {

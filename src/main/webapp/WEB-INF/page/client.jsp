@@ -21,30 +21,27 @@
                 <div id='clientPrimaryInfo' class='list-group panel-body' data-id="<%=client.getId()%>">
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("first_name") %></span>
-                        <input type='text' name='firstName' class='form-control input-sm' required autofocus value="<%=client.getFirstName()%>"/>
+                        <div class='form-control input-sm disabled'><%=client.getFirstName()%></div>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("last_name") %></span>
-                        <input type='text' name='lastName' class='form-control input-sm' required autofocus value="<%=client.getLastName()%>"/>
+                        <div class='form-control input-sm disabled'><%=client.getLastName()%></div>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("patronymic") %></span>
-                        <input type='text' name='patronymic' class='form-control input-sm' required autofocus value="<%=client.getPatronymic()%>"/>
+                        <div class='form-control input-sm disabled'><%=client.getPatronymic()%></div>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("birth")%></span>
-                        <input type='text' name='birth' class='form-control input-sm' required value="<%=client.getBirth()%>"/>
+                        <div class='form-control input-sm disabled'><%=client.getBirth()%></div>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("sex")%></span>
-                        <select name='ismale' class='form-control input-sm' required>
-                            <option <%=client.getSex()?"selected":""%> value="1"><%=rb.getString("male")%></option>
-                            <option <%=client.getSex()?"":"selected"%> value="0"><%=rb.getString("female")%></option>
-                        </select>
+                        <div class='form-control input-sm disabled'><%=client.getSex()?rb.getString("male"):rb.getString("female")%></div>
                     </div>
                     <br>
                     <div class='input-group'>
@@ -94,7 +91,7 @@
             </div>
             <div id="orders" class="tab-pane fade">
                 <% Set<Order> orders = client.getOrders(); %>
-                <div class="panel-body">12344
+                <div class="panel-body">
                  <table id="tblOrders" class="table table-bordered table-condensed table-hover">
                         <thead><tr><th><%=rb.getString("date")%></th><th><%=rb.getString("wish_summ") + " (" + rb.getString("currency") + ")"%></th><th><%=rb.getString("wish_date") + " (" + rb.getString("days") + ")"%></th></tr></thead>
                         <tbody><% for(Order order : orders) {

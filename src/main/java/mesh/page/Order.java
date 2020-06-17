@@ -30,7 +30,7 @@ public class Order extends HttpServlet {
                 mesh.db.Client client = (mesh.db.Client) em.createQuery("select C from Client C where C.id = :cid")
                         .setParameter("cid", order.getCid())
                         .getSingleResult();
-                List<mesh.db.Loan> loans = em.createQuery("select L from Loan L").getResultList();
+                List<mesh.db.Loan> loans = em.createQuery("select L from Loan L order by L.name asc").getResultList();
 
                 order.setApproved(util.approveLoans(client, order, loans));
 
