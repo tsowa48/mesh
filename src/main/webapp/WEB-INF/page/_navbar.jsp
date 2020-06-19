@@ -20,7 +20,7 @@
         </ul>
         <div class="navbar-form navbar-left">
             <div class="form-group">
-                <input type="text" class="form-control" name="search" placeholder="<%=rb.getString("find")%>">
+                <input type="text" class="form-control" style='width:400px' name="search" placeholder="<%=rb.getString("find")%>">
             </div>
         </div>
     </div>
@@ -33,6 +33,7 @@
             </div>
 
             <form class="modal-body" id="clientForm">
+                *Все поля обязательны для заполнения<br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("first_name")%></span>
                             <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено" name='firstname' class='form-control input-sm' required value=""/>
@@ -50,13 +51,13 @@
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("birth")%></span>
-                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено в соответствии с форматом: ДД.ММ.ГГГГ" name='birth' class='form-control input-sm' required value="" placeholder="01.01.2000"/>
+                            <input type='text' data-toggle="tooltip" title="Поле должно быть заполнено в соответствии с форматом: ДД.ММ.ГГГГ и старше 18 лет" name='birth' class='form-control input-sm' required value="" placeholder="01.01.2000"/>
                         </div>
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("sex")%></span>
-                            <select name='sex' class='form-control input-sm' required>
-                                <option disable selected value="1"></option>
+                            <select name='sex' class='form-control input-sm' required data-toggle="tooltip" title="Поле должно быть заполнено">
+                                <option value="-1" selected disabled></option>
                                 <option value="1"><%=rb.getString("male")%></option>
                                 <option value="0"><%=rb.getString("female")%></option>
                             </select>
@@ -64,7 +65,7 @@
                         <br>
                         <div class='input-group'>
                             <span class='input-group-addon'><%=rb.getString("address")%></span>
-                            <textarea name='address' class='form-control input-sm' required rows="4"></textarea>
+                            <textarea name='address' class='form-control input-sm' required rows="4" data-toggle="tooltip" title="Поле должно быть заполнено"></textarea>
                         </div>
                         <br>
                         <div class='input-group'>
@@ -76,8 +77,8 @@
                             <tr><th><%=rb.getString("document_type")%></th><th><%=rb.getString("serial")%></th><th><%=rb.getString("number")%></th><th><%=rb.getString("document_issued")%></th></tr>
                             <% //for(Document.Type type : Document.Type.values())
                                 out.write("<tr><td>" + rb.getString("document_type_0") + "</td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='numeric' name='serial' min='100' max='9999' value=''/></td>" +
-                                        "<td style='padding:0px'><input class='form-control input-sm' type='numeric' name='number' min='1' max='999999' value=''/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='number' name='serial' min='100' max='9999' value='' data-toggle='tooltip' title='Поле должно быть заполнено'/></td>" +
+                                        "<td style='padding:0px'><input class='form-control input-sm' type='number' name='number' min='1' max='999999' value='' data-toggle='tooltip' title='Поле должно быть заполнено'/></td>" +
                                         "<td style='padding:0px'><input class='form-control input-sm' data-toggle='tooltip' title='Поле должно быть заполнено в соответствии с форматом: ДД.ММ.ГГГГ' type='text' name='issued' value='' placeholder='01.01.2000'/></td></tr>");
                             %>
                         </table>
@@ -104,7 +105,47 @@
                 var newClient = {};
                 fields.each(function(index) {
                     $(this).parent().removeClass('has-error');
+                    if($(this).attr('name') === 'firstname' && $(this).val()==='') {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'lastname' && $(this).val()==='') {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'patronymic' && $(this).val()==='') {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
                     if($(this).attr('name') === 'birth' && ((new RegExp('[0-9]{2}\.[0-9]{2}\.[0-9]{4}')).test($(this).val())===false || (calculateAge(toDate($(this).val())) < 18))) {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'sex' && parseInt($(this).val())===-1) {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'address' && $(this).val()==='') {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'salary' && parseInt($(this).val()) < 0) {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'serial' && $(this).val()==='') {
+                        $(this).parent().addClass('has-error');
+                        $(this).tooltip().mouseover();
+                        return;
+                    }
+                    if($(this).attr('name') === 'number' && $(this).val()==='') {
                         $(this).parent().addClass('has-error');
                         $(this).tooltip().mouseover();
                         return;

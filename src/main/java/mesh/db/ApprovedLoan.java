@@ -4,7 +4,7 @@ package mesh.db;
  *
  * @author tsowa
  */
-public class ApprovedLoan {
+public class ApprovedLoan implements Comparable {
   private Loan loan;
   private Double amount;
   private Integer date;
@@ -24,4 +24,9 @@ public class ApprovedLoan {
   public Integer getDate() { return date; }
   public Double getPercent() { return percent; }
   public Double getMonthPayment() { return monthPayment; }
+
+  @Override
+  public int compareTo(Object o) {
+    return this.loan.getName().compareTo(((ApprovedLoan)o).getLoan().getName());
+  }
 }

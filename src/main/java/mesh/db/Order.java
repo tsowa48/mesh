@@ -2,6 +2,8 @@ package mesh.db;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.persistence.*;
 
 /**
@@ -28,10 +30,10 @@ public class Order {
   @Column(nullable = false)
   private Integer date;//Date - order date
   @Transient
-  private Set<ApprovedLoan> approved;
+  private SortedSet<ApprovedLoan> approved;
   
   public Order() {
-    approved = new HashSet<>();
+    approved = new TreeSet<>();
   }
 
   public Integer getId() { return id; }
@@ -46,6 +48,6 @@ public class Order {
   public void setDesired_term(Integer desired_term) { this.desired_term = desired_term; }
   public Integer getDate() { return date; }
   public void setDate(Integer date) { this.date = date; }
-  public Set<ApprovedLoan> getApproved() { return approved; }
-  public void setApproved(Set<ApprovedLoan> approved) { this.approved = approved; }
+  public SortedSet<ApprovedLoan> getApproved() { return approved; }
+  public void setApproved(SortedSet<ApprovedLoan> approved) { this.approved = approved; }
 }

@@ -1,5 +1,8 @@
 <%@ page import="static mesh.util.rb" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="mesh.plugin.fssp.fssp" %>
+<%@ page import="mesh.plugin.fedstat.fedstat" %>
+<%@ page import="java.util.Date" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/WEB-INF/page/_header.jsp"%>
 <body class="container">
@@ -10,14 +13,15 @@
     <div id='orderInfo' class='panel-body' oid="<%=order.getId()%>">
         <% Set<mesh.db.ApprovedLoan> approved = order.getApproved();
             Double solvency = client.getSolvency();
+            Double salary = client.getSalary() - fssp.get(client.getFirstName(), client.getLastName(), client.getPatronymic(), client.getBirth(), false) - fedstat.getLivingWage(new Date().getYear() + 1900 - 1);
             for(mesh.db.ApprovedLoan apl : approved) {
                 mesh.db.Loan cl = apl.getLoan();
                 String hasColor = "";
-                if(cl.getMaxSolvency() > solvency && cl.getMinSolvency() < solvency)
+                if((cl.getMaxSolvency() > solvency && cl.getMinSolvency() < solvency) && salary > apl.getMonthPayment())
                     hasColor = "has-success";
-                else if(cl.getMinSolvency() > solvency)
-                    hasColor = "has-error";
-                else if(cl.getMaxSolvency() < solvency)
+                else if(cl.getMinSolvency() > solvency || salary < apl.getMonthPayment())
+                    hasColor = "has-error disabled";
+                else if(cl.getMaxSolvency() < solvency && salary >= apl.getMonthPayment())
                     hasColor = "has-warning";
                 out.print("<div class='input-group " + hasColor + "' lid='" + (cl.getMaxSolvency() < solvency ? "0" : cl.getId())
                         + "' style='cursor:" + (cl.getMaxSolvency() < solvency ? "not-allowed" : "pointer") + ";'>");

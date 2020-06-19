@@ -6,17 +6,22 @@
             <div class='list-group panel-body'>
                 <div class='input-group <%=(request.getAttribute("error")==null?"":request.getAttribute("error"))%>'>
                     <span class='input-group-addon'><i class="glyphicon glyphicon-user"></i></span>
-                    <input type='text' name='login' class='form-control input-sm' required autofocus value=""/>
+                    <input type='text' <%=request.getAttribute("error") != null ? "data-toggle='tooltip' title='Неверный логин или пароль' data-placement='right'" : "" %> name='login' class='form-control input-sm' required autofocus value=""/>
                 </div>
                 <br>
                 <div class='input-group <%=(request.getAttribute("error")==null?"":request.getAttribute("error"))%>'>
                     <span class='input-group-addon'><i class="glyphicon glyphicon-lock"></i></span>
-                    <input type='password' name='password' class='form-control input-sm' required value=""/>
+                    <input type='password' <%=request.getAttribute("error") != null ? "data-toggle='tooltip' title='Неверный логин или пароль' data-placement='right'" : "" %> name='password' class='form-control input-sm' required value=""/>
                 </div>
             </div>
             <div class='panel-footer' style="padding-top:5px">
                 <input type='submit' class='btn btn-success btn-block' value='<%=mesh.util.rb.getString("signin") %>'/>
             </div>
+            <%if(request.getAttribute("error") != null) { %>
+            <script type="text/javascript">
+                $('.form-control').tooltip().mouseover();
+            </script>
+            <% } %>
         </form>
     </body>
 </html>

@@ -83,12 +83,12 @@ public class util {
    * @return Y - max(monthAmount)
    */
   private static Double monthAmount(Double D, Double n, Double i) {
-    return D * (1 + (n.intValue() < 12 ? (n / 12.0) : n) * (i / 100.0)) / n;
+    return D * (1 + (n / 12.0) * (i / 100.0)) / n;//(n.intValue() < 12 ? (n / 12.0) : n)
   }
   
-  public static Set<ApprovedLoan> approveLoans(Client client, Order order, List<Loan> loans) {
+  public static SortedSet<ApprovedLoan> approveLoans(Client client, Order order, List<Loan> loans) {
     final Double solvency = client.getSolvency() == null ? 0.0001 : client.getSolvency();
-    final Set<ApprovedLoan> aloans = new HashSet<>();
+    final SortedSet<ApprovedLoan> aloans = new TreeSet<>();
     final Integer isWhiteListed = solvency == 0.0 ? 0 : 1;
     final Double desiredAmount = order.getDesired_amount();
     final Double n = order.getDesired_term() * 1.0;
@@ -100,7 +100,7 @@ public class util {
         amount = it.getMaxAmount();
       Integer term = ((Long)Math.round(it.getMinTerm() + (it.getMaxTerm() - it.getMinTerm()) * solvency)).intValue();
       Double percent = it.getMaxPercent() - (it.getMaxPercent() - it.getMinPercent()) * solvency;
-      Double monthPayment = monthAmount(amount, n, percent);
+      Double monthPayment = monthAmount(amount, term * 1.0, percent);
       ApprovedLoan al = new ApprovedLoan(it, amount * isWhiteListed, term * isWhiteListed, percent * isWhiteListed, monthPayment);
       aloans.add(al);
     });

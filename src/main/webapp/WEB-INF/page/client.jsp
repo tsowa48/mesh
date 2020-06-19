@@ -7,6 +7,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/WEB-INF/page/_header.jsp"%>
 <body class="container">
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav">
+                    <li><a href="/"><%=rb.getString("back") %></a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span><span class='hidden-xs'>&nbsp;<%=rb.getString("logout")%></span></a></li>
+        </ul>
+    </div>
+</nav>
     <main class="panel panel-primary vertical-center modal-dialog">
         <div class='panel-heading' style='text-align:center;'><b><%=rb.getString("client") %></b></div>
 
@@ -21,27 +31,27 @@
                 <div id='clientPrimaryInfo' class='list-group panel-body' data-id="<%=client.getId()%>">
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("first_name") %></span>
-                        <div class='form-control input-sm disabled'><%=client.getFirstName()%></div>
+                        <input class='form-control input-sm' disabled value="<%=client.getFirstName()%>"/>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("last_name") %></span>
-                        <div class='form-control input-sm disabled'><%=client.getLastName()%></div>
+                        <input class='form-control input-sm' disabled value="<%=client.getLastName()%>"/>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("patronymic") %></span>
-                        <div class='form-control input-sm disabled'><%=client.getPatronymic()%></div>
+                        <input class='form-control input-sm' disabled value="<%=client.getPatronymic()%>"/>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("birth")%></span>
-                        <div class='form-control input-sm disabled'><%=client.getBirth()%></div>
+                        <input class='form-control input-sm' disabled value="<%=client.getBirth()%>"/>
                     </div>
                     <br>
                     <div class='input-group'>
                         <span class='input-group-addon'><%=rb.getString("sex")%></span>
-                        <div class='form-control input-sm disabled'><%=client.getSex()?rb.getString("male"):rb.getString("female")%></div>
+                        <input class='form-control input-sm' disabled value="<%=client.getSex()?rb.getString("male"):rb.getString("female")%>"/>
                     </div>
                     <br>
                     <div class='input-group'>
@@ -174,9 +184,6 @@
                     };
                 </script>
             </div>
-        </div>
-        <div class='panel-footer'>
-            <a href="/" class='btn btn-primary btn-block'><%=rb.getString("back") %></a>
         </div>
     </main>
 </body>
